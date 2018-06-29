@@ -7,19 +7,24 @@ public class Robot implements ControllerListener {
     private Drivetrain drivetrain;
     private Shooter shooter;
 
-    private float lastThrottle = -1;
-    private float lastTurn = -1;
+    // ?????
+    private float lastLeft = -1;
+    private float lastRight = -1;
 
+    // Init subsystems
     public Robot() {
         serial = new RobotSerial();
         drivetrain = new Drivetrain(serial);
         shooter = new Shooter(serial);
     }
 
+    // Run things when the joysticks change
     public void onAxisChange(float lx, float ly, float rx, float ry) {
-        arcadeDrive(ly, rx);
+        //arcadeDrive(ly, rx);
+        tankDrive(ly, ry);
     }
 
+    // Run things on the button press
     public void onButtonPress(int button, boolean isPressed) {
         switch (button) {
             case A:
@@ -54,6 +59,14 @@ public class Robot implements ControllerListener {
                     shooter.retractLeft();
                 }
                 break;
+            case ClickRight:
+                if (isPressed) {
+                    shooter.popRight();
+                }
+                else {
+                    shooter.retractRight();
+                }
+                break;
             case LeftShoulder:
                 if (isPressed) {
                     shooter.reloadLeft();
@@ -63,6 +76,7 @@ public class Robot implements ControllerListener {
                 if (isPressed) {
                     shooter.reloadRight();
                 }
+                break;
             case LeftTrigger:
                 if (isPressed) {
                     shooter.shootLeft(40);
@@ -84,8 +98,16 @@ public class Robot implements ControllerListener {
         //System.out.println(throttle);
         System.out.println("Throttle: " + throttle);
         System.out.println("Turn: " + turn);
-        if (throttle > 0.3) {
 
+    }
+
+    public void tankDrive(float left, float right) {
+        left = left > 0 ? 0.5F : (left < 0 ? -0.5F : 0);
+        right = right > 0 ? -0.5F : (right < 0 ? 0.5F : 0);
+        if (lastLeft != left || lastRight != lastRight) {
+            lastLeft = left;
+            lastRight = right;
+            drivetrain.setMotorPower(left, right);
         }
     }
 }

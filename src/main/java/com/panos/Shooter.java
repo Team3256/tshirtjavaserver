@@ -4,6 +4,7 @@ public class Shooter {
     private RobotSerial serial;
 
     private boolean reloadingLeft = false;
+    private boolean reloadingRight = false;
 
     public Shooter(RobotSerial serial) {
         this.serial = serial;
@@ -14,7 +15,7 @@ public class Shooter {
     }
 
     public void pivotHome() {
-        if (!reloadingLeft) {
+        if (!reloadingLeft && !reloadingRight) {
             serial.sendCommand("ph()");
         }
     }
@@ -25,15 +26,34 @@ public class Shooter {
         }
     }
 
+    public void popRight() {
+        if (!reloadingRight) {
+            serial.sendCommand("pr()");
+        }
+    }
+
     public void ejectLeft() {
         if (!reloadingLeft) {
             serial.sendCommand("el()");
         }
     }
 
+    public void ejectRight() {
+        if (!reloadingRight) {
+            serial.sendCommand("er()");
+        }
+    }
+
+
     public void retractLeft() {
         if (!reloadingLeft) {
             serial.sendCommand("rl()");
+        }
+    }
+
+    public void retractRight() {
+        if (!reloadingRight) {
+            serial.sendCommand("rr()");
         }
     }
 
@@ -59,8 +79,8 @@ public class Shooter {
     }
 
     public void reloadRight() {
-        if (!reloadingLeft) {
-            reloadingLeft = true;
+        if (!reloadingRight) {
+            reloadingRight = true;
             Thread thread = new Thread(() -> {
                 try {
                     serial.sendCommand("pr()");
@@ -73,7 +93,7 @@ public class Shooter {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                reloadingLeft = false;
+                reloadingRight = false;
             });
             thread.start();
         }
