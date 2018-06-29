@@ -1,4 +1,6 @@
-package com.panos;
+package com.panos.subsystems;
+
+import com.panos.RobotSerial;
 
 public class Shooter {
     private RobotSerial serial;

@@ -1,5 +1,8 @@
 package com.panos;
 
+import com.panos.subsystems.Drivetrain;
+import com.panos.subsystems.Shooter;
+
 import static com.panos.ButtonType.*;
 
 public class Robot implements ControllerListener {
