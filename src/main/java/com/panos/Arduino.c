@@ -1,3 +1,11 @@
+/*
+  This is the node on the arduino that will recieve values from the jetson and run the electronics.
+  TODO:
+  1. Add limits on pivot
+  2. Add auto moving to position on pivot
+  3. Implement full move to flat, reload, and move back to current position
+*/
+
 #include <Servo.h>
 #include <Encoder.h>
 
@@ -58,6 +66,7 @@ long pivotPos = -999;
 bool is_left_reloading = false;
 bool is_right_reloading = false;
 bool is_calibrated = false;
+float ticksPerDegree = 0;
 
 // Define states for the pivot
 enum pivotState{
@@ -160,22 +169,181 @@ float update_preset(double target, double current) {
   return power;
 }
 
-void home_pivot() {
-  int pivotState = digitalRead(20);
-
-  while(pivotState != 0) {
-    Serial.println(pivotState);
-    run_motor(pivot, 0.5);
-    pivotState = digitalRead(20);
+float update_pivot(float angle, double power) {
+  float currPos = pivotEnc.read();
+  float targetTicks = ticksPerDegree * angle;
+  bool direction = true; //true is going up...false is going down
+  if(ticksToDegrees(currPos) > angle) {
+    direction = false;
   }
-
+  if(direction) {
+    while(currPos < targetTicks) {
+      run_motor(pivot, power);
+    }
+  }
+  else{
+    while(currPos > targetTicks) {
+      run_motor(pivot, -power);
+    }
+  }
   run_motor(pivot, 0);
-  pivotEnc.write(0);
 }
+
+float degreesToTicks(float degrees) {
+  return degrees*ticksPerDegree;
+}
+
+float ticksToDegrees(float ticks) {
+  return ticks/ticksPerDegree;
+}
+
+
+// //Called everytime the subscriber reads from the controls topic
+// void controls_callback(const std_msgs::Float32MultiArray& data) {
+//  //Controller values
+//  float left_drive = data.data[0];
+//  float right_drive = data.data[1];
+//  bool left_shoot = data.data[2] != 0;
+//  bool right_shoot = data.data[3] != 0;
+//  bool left_reload = data.data[4] != 0;
+//  bool right_reload = data.data[5] != 0;
+//  bool pivot_forward = data.data[6] != 0;
+//  bool pivot_backward = data.data[7] != 0;
+//  bool left_preset = data.data[8] != 0;
+//  bool right_preset = data.data[9] != 0;
+
+//  //run drive with joysticks (Arcade drive is handled on Jetson side)
+//  run_motor(left_front, left_drive);
+//  run_motor(left_back, left_drive);
+//  run_motor(right_front, -right_drive);
+//  run_motor(right_back, -right_drive);
+
+//  //shoot on triggers
+//  if (left_shoot) {
+//    shoot_left(30);
+//  }
+//  if (right_shoot) {
+//    shoot_right(30);
+//  }
+
+//  //update pivot state
+//  if (pivot_forward || pivot_backward) {
+//    mstate = pivotState::manual;
+//  }else if (left_preset || right_preset) {
+//    mstate = pivotState::autoMoving;
+//    //set a variable for what position to move to
+//  }else if(left_reload || right_reload) {
+//    mstate = pivotState::reloading;
+//  }else{
+//    mstate = pivotState::still;
+//  }
+
+//  //switch case for pivot state (reloading and automoving state aren't doing anything)
+//  //Hard limits haven't been set
+//  //Reloading should be split into two states: Reloading and moving to reload
+//  //After reloading, call autoMoving to move back to past position
+//  switch(mstate) {
+//    //we hit front limit
+//    if (is_calibrated && pivotPos > PIVOT_ENCODER_FORWARD_LIMIT) {
+//      pivot_power = min(pivot_power, 0);
+//    }
+//    //we hit back limit
+//    else if (is_calibrated && pivotPos < PIVOT_ENCODER_BACK_LIMIT) {
+//      pivot_power = max(pivot_power, 0);
+//    }
+//    case manual:
+//      //debug_msg.data = "manual";
+//      motor_power = pivot_power;
+//      motor_power = pivot_backward ? motor_power*-1 : motor_power;
+//      mstate = pivotState::still;
+//      break;
+//    case autoMoving:
+//      //debug_msg.data = "autoMoving";
+//      motor_power = update_preset(pivotTarget, pivotPos);
+//      if (!is_calibrated) {
+//        motor_power = 0;
+//      }
+//      mstate = pivotState::still;
+//      break;
+//    case reloading:
+//      //debug_msg.data = "reloading";
+//      motor_power = update_preset(0, pivotPos);
+//      if (!is_calibrated) {
+//        motor_power = 0;
+//      }
+//      mstate = pivotState::still;
+//      break;
+//    case still:
+//      //debug_msg.data = "still";
+//      motor_power = 0;
+//      break;
+//  }
+
+//  //we hit encoder front limit
+//  if (is_calibrated && pivotPos > PIVOT_ENCODER_FORWARD_LIMIT) {
+//    motor_power = min(motor_power, 0);
+//  }
+//  //we hit encoder back limit
+//  else if (is_calibrated && pivotPos < PIVOT_ENCODER_BACK_LIMIT) {
+//    motor_power = max(motor_power, 0);
+//  }
+//  //we hit hall effect front limit
+//  if (hall_effect()) {
+//    motor_power = min(motor_power, 0);
+//  }
+
+//  //run motor based off switch case
+//  run_motor(pivot, motor_power);
+//  debug.publish(&debug_msg);
+
+//  //Old automoving method with too many safety features because the pivot is dangerous
+//  //Need to merged into switch case
+//  /*
+//  if (is_calibrated) {
+//    if (left_preset) {
+//      update_preset(-5000, pivotPos);
+//    }
+//    else{
+//      pivot_power = pivot_backward ? pivot_power*-1 : pivot_power;
+//      if (pivot_forward || pivot_backward) {
+//        run_motor(pivot, pivot_power);
+//      }
+//      else {
+//        run_motor(pivot, 0);
+//      }
+//    }
+//  }
+//  */
+
+//  //Automatic Reloading Sequence (run on button pressed not held because that will cause issues interrupting the sequence)
+//  //Should be implemented into the pivot states
+//  if (left_reload && !is_left_reloading) {
+//    is_left_reloading = true;
+//    pop_left();
+//    delay(500);
+//    eject_left();
+//    delay(500);
+//    retract_left();
+//    delay(500);
+//    push_left();
+//    is_left_reloading = false;
+//  }
+//  if (right_reload && !is_right_reloading) {
+//    is_right_reloading = true;
+//    pop_right();
+//    delay(500);
+//    eject_right();
+//    delay(500);
+//    retract_right();
+//    delay(500);
+//    push_right();
+//    is_right_reloading = false;
+//  }
+// }
 
 void setup() {
   //Attach motors
-  Serial.begin(500000);
+  Serial.begin(115200);
   Serial.setTimeout(30);
   left_front.attach(LEFT_FRONT_PIN);
   left_back.attach(LEFT_BACK_PIN);
@@ -203,7 +371,17 @@ void setup() {
   digitalWrite(LEFT_SHOOT, HIGH);
   digitalWrite(RIGHT_SHOOT, HIGH);
 
-  home_pivot();
+  int pivotState = digitalRead(20);
+
+  while(pivotState != 0) {
+    run_motor(pivot, 0.2);
+    pivotState = digitalRead(20);
+  }
+
+  run_motor(pivot, 0);
+
+  pivotEnc.write(0);
+
 }
 
 enum commandState {
@@ -229,61 +407,62 @@ void runCommand() {
       run_motor(right_back, payload2.toFloat());
   }
 
-  if (command == "pl") {
-    pop_left();
+  if (command == "b4" && payload == "true") {
+     pop_left();
+     delay(500);
+     eject_left();
+     delay(500);
+     retract_left();
+     delay(500);
+     push_left();
   }
 
-  if (command == "el") {
-    eject_left();
+  if (command == "b5" && payload == "true") {
+     //pop_left();
+     pop_right();
+     delay(500);
+     //eject_left();
+     eject_right();
+     delay(500);
+     //retract_left();
+     retract_right();
+     delay(500);
+     push_right();
   }
 
-  if (command == "rl") {
-    retract_left();
-  }
-
-  if (command == "pul") {
-    push_left();
-  }
-
-  if (command == "pr") {
-    pop_right();
-  }
-
-
-  if (command == "er") {
-    eject_right();
-  }
-
-  if (command == "rr") {
-    retract_right();
-  }
-
-  if (command == "pur") {
-    push_right();
-  }
-
-  if (command == "ph") {
-    home_pivot();
-  }
-
-  if (command == "p") {
+  if (command == "b6" && payload == "true") {
     Serial.println(pivotEnc.read());
-    run_motor(pivot, payload.toFloat());
+    run_motor(pivot, -0.2);
   }
 
-  if (command == "sl") {
-    shoot_left(payload.toInt());
+  if (command == "b6" && payload == "false") {
+    Serial.println(pivotEnc.read());
+    run_motor(pivot, 0);
   }
 
-  if (command == "sr") {
-    shoot_right(payload.toInt());
+  if (command == "b7" && payload == "true") {
+    Serial.println(pivotEnc.read());
+    run_motor(pivot, 0.2);
+  }
+
+  if (command == "b7" && payload == "false") {
+    Serial.println(pivotEnc.read());
+    run_motor(pivot, 0);
+  }
+
+  if (command == "b8" && payload == "true") {
+    shoot_left(30);
+  }
+
+  if (command == "b9" && payload == "true") {
+    shoot_right(30);
   }
 }
 
 void loop() {
   //Update encoder
   pivotPos = pivotEnc.read();
-  //Serial.println(pivotPos);
+  Serial.println(pivotPos);
 
   if (Serial.available()) {
     Serial.println("Reading");
