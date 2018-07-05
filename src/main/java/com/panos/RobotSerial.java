@@ -1,31 +1,47 @@
 package com.panos;
 
-import jssc.SerialPort;
-import jssc.SerialPortException;
+import java.io.*;
 
 public class RobotSerial {
-    SerialPort port;
+    public OutputStream port;
 
-    // Connection to the serial port on the Arduino
+    // Connect to the serial port on the Arduino
     public RobotSerial() {
-        port = new SerialPort("/dev/ttyACM0");
-
+        // Get a list of all Serial ports on the device
+        File initialFile = new File("/dev/ttyACM0");
         try {
-            port.openPort();
-            port.setParams(SerialPort.BAUDRATE_115200,
-                    SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_NONE);
-        } catch (SerialPortException e) {
+            InputStream targetStream = new FileInputStream(initialFile);
+            port = new FileOutputStream(initialFile);
+            java.util.Scanner s = new java.util.Scanner(targetStream).useDelimiter("\r\n");
+            Thread thread = new Thread(() -> {
+                while (true) {
+                    Log.arduino(s.hasNext() ? s.next() : "");
+                }
+            });
+            thread.start();
+            Log.serial("SERIAL PORT OPENED");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+//    public void serialEvent(SerialPortEvent event) {
+//        if (event.isRXCHAR() && event.getEventValue() > 0) {
+//            int bytesCount = event.getEventValue();
+//            try {
+//                Log.arduino(port.readString(bytesCount));
+//            } catch (SerialPortException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
     public void sendCommand(String s) {
-        System.out.println(s);
+        Log.serial("SENDING: " + s);
         try {
-            port.writeString(s + "\r\n");
-        } catch (SerialPortException e) {
+            port.write(s.getBytes());
+            port.flush();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

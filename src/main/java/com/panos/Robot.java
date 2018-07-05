@@ -10,9 +10,8 @@ public class Robot implements ControllerListener {
     private Drivetrain drivetrain;
     private Shooter shooter;
 
-    // ?????
-    private float lastLeft = -1;
-    private float lastRight = -1;
+    private float previousLeft = -1;
+    private float previousRight = -1;
 
     // Init subsystems
     public Robot() {
@@ -32,9 +31,9 @@ public class Robot implements ControllerListener {
         switch (button) {
             case A:
                 if (isPressed) {
-                    System.out.println("A");
+                    Log.robot("A Pressed");
                 } else {
-                    System.out.println("Not A");
+                    Log.robot("A Depressed");
                 }
                 break;
             case DPadUp:
@@ -97,19 +96,22 @@ public class Robot implements ControllerListener {
         drivetrain.setMotorPower(0, 0);
     }
 
-    public void arcadeDrive(float throttle, float turn) {
-        //System.out.println(throttle);
-        System.out.println("Throttle: " + throttle);
-        System.out.println("Turn: " + turn);
-
+    public void arcadeDrive(float left, float right) {
+        if (previousLeft != left || previousRight != right) {
+            Log.robot("Throttle: " + left);
+            Log.robot("Turn: " + right);
+            previousLeft = left;
+            previousRight = right;
+            drivetrain.setMotorPower(left, right);
+        }
     }
 
     public void tankDrive(float left, float right) {
         left = left > 0 ? 0.5F : (left < 0 ? -0.5F : 0);
         right = right > 0 ? -0.5F : (right < 0 ? 0.5F : 0);
-        if (lastLeft != left || lastRight != lastRight) {
-            lastLeft = left;
-            lastRight = right;
+        if (previousLeft != left || previousRight != right) {
+            previousLeft = left;
+            previousRight = right;
             drivetrain.setMotorPower(left, right);
         }
     }

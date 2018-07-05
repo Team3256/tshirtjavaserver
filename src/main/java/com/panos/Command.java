@@ -13,7 +13,14 @@ public class Command {
     public int button;
     public boolean isPressed;
 
+    public String message;
+
     public Command() {
 
+    }
+
+    public Command(String msg) {
+        command = "msg";
+        message = msg;
     }
 }

@@ -3,7 +3,10 @@
     <output-path>$PROJECT_DIR$/out/artifacts/tshirt_server_jar</output-path>
     <root id="archive" name="tshirt-server.jar">
       <element id="module-output" name="tshirt-server" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/3.6.0/protobuf-java-3.6.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/scream3r/jssc/2.8.0/jssc-2.8.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/java-websocket/Java-WebSocket/1.3.8/Java-WebSocket-1.3.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
