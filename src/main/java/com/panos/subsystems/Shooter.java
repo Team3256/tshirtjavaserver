@@ -14,49 +14,49 @@ public class Shooter {
     }
 
     public void setPivotSpeed(double speed) {
-        serial.sendCommand(">p," + speed + ";");
+        serial.sendCommand(">pivot," + speed + ";");
     }
 
     public void pivotHome() {
         if (!reloadingLeft && !reloadingRight) {
-            serial.sendCommand(">ph;");
+            serial.sendCommand(">pivothome;");
         }
     }
 
     public void popLeft() {
         if (!reloadingLeft) {
-            serial.sendCommand(">pl;");
+            serial.sendCommand(">popl;");
         }
     }
 
     public void popRight() {
         if (!reloadingRight) {
-            serial.sendCommand(">pr;");
+            serial.sendCommand(">popr;");
         }
     }
 
     public void ejectLeft() {
         if (!reloadingLeft) {
-            serial.sendCommand(">el;");
+            serial.sendCommand(">ejectl;");
         }
     }
 
     public void ejectRight() {
         if (!reloadingRight) {
-            serial.sendCommand(">er;");
+            serial.sendCommand(">ejectr;");
         }
     }
 
 
     public void retractLeft() {
         if (!reloadingLeft) {
-            serial.sendCommand(">rl;");
+            serial.sendCommand(">retractl;");
         }
     }
 
     public void retractRight() {
         if (!reloadingRight) {
-            serial.sendCommand(">rr;");
+            serial.sendCommand(">retractr;");
         }
     }
 
@@ -65,13 +65,13 @@ public class Shooter {
             reloadingLeft = true;
             Thread thread = new Thread(() -> {
                 try {
-                    serial.sendCommand(">pl;");
+                    serial.sendCommand(">popl;");
                     Thread.sleep(500);
-                    serial.sendCommand(">el;");
+                    serial.sendCommand(">ejectl;");
                     Thread.sleep(500);
-                    serial.sendCommand(">rl;");
+                    serial.sendCommand(">retractl;");
                     Thread.sleep(500);
-                    serial.sendCommand(">pul;");
+                    serial.sendCommand(">pushl;");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -86,13 +86,13 @@ public class Shooter {
             reloadingRight = true;
             Thread thread = new Thread(() -> {
                 try {
-                    serial.sendCommand(">pr;");
+                    serial.sendCommand(">popr;");
                     Thread.sleep(500);
-                    serial.sendCommand(">er;");
+                    serial.sendCommand(">ejectr;");
                     Thread.sleep(500);
-                    serial.sendCommand(">rr;");
+                    serial.sendCommand(">retractr;");
                     Thread.sleep(500);
-                    serial.sendCommand(">pur;");
+                    serial.sendCommand(">pushr;");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -103,10 +103,10 @@ public class Shooter {
     }
 
     public void shootLeft(int power) {
-        serial.sendCommand(">sl," + power + ";");
+        serial.sendCommand(">shootl," + power + ";");
     }
 
     public void shootRight(int power) {
-        serial.sendCommand(">sr," + power + ";");
+        serial.sendCommand(">shootr," + power + ";");
     }
 }

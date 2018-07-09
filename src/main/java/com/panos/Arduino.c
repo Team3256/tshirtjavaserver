@@ -1,11 +1,3 @@
-/*
-  This is the node on the arduino that will recieve values from the jetson and run the electronics.
-  TODO:
-  1. Add limits on pivot
-  2. Add auto moving to position on pivot
-  3. Implement full move to flat, reload, and move back to current position
-*/
-
 #include <Servo.h>
 #include <Encoder.h>
 
@@ -58,42 +50,6 @@ Servo pivot;
 // Define Sensors (Hall Effect is defined in Setup)
 Encoder pivotEnc(ENCODER_A, ENCODER_B);
 
-// Define variables
-int pivotTarget = 0;
-float pivot_power = 0.25;
-float motor_power = 0;
-long pivotPos = -999;
-bool is_left_reloading = false;
-bool is_right_reloading = false;
-bool is_calibrated = false;
-float ticksPerDegree = -2050;
-
-// Define states for the pivot
-enum pivotState{
-  manual,
-  autoMoving,
-  reloading,
-  still
-};
-pivotState mstate = pivotState::manual;
-
-// Method to control motor controllers at the desired frequencies
-void run_motor(Servo motor, double power) {
-  power *= 100;
-  int pulse_us = TALON_CENTER_PULSE_US + (5*power);
-  if (pulse_us < TALON_MIN_PULSE_US) pulse_us = TALON_MIN_PULSE_US;
-  if (pulse_us > TALON_MAX_PULSE_US) pulse_us = TALON_MAX_PULSE_US;
-  motor.writeMicroseconds(pulse_us);
-}
-
-/*
-  Set of methods for controlling the 4 actuators for reloading and the 2 electronic solenoids for shooting
-  Pop pops the barrel forward to let the canister drop down
-  Push pushes the barrel in on the canister for shooting
-  Eject ejects the empty canisters when the barrel is popped out
-  Retract retracts the actuator after the barrel is ejected
-  Shoot opens and closes the electronic solenoids for a short time to release air to shoot the TShirt
-*/
 void pop_left() {
   digitalWrite(LEFT_POP_FORWARD, HIGH);
   digitalWrite(LEFT_POP_REVERSE, LOW);
@@ -133,25 +89,32 @@ void retract_right() {
   digitalWrite(RIGHT_EJECT_FORWARD, LOW);
   digitalWrite(RIGHT_EJECT_REVERSE, HIGH);
 }
+
 void shoot_right(int wait) {
   digitalWrite(RIGHT_SHOOT, LOW);
   delay(wait);
   digitalWrite(RIGHT_SHOOT, HIGH);
 }
+
 void shoot_left(int wait) {
   digitalWrite(LEFT_SHOOT, LOW);
   delay(wait);
   digitalWrite(LEFT_SHOOT, HIGH);
 }
 
-// Get hall_effect position
-bool hall_effect() {
-  bool val = !digitalRead(HALL_EFFECT);
-  if (val) is_calibrated = true;
-  return val;
-}
+int pivotTarget = 0;
+float pivot_power = 0.25;
+float motor_power = 0;
+long pivotPos = -999;
+float ticksPerDegree = -2050;
 
-// Used to move pivot to a preset position
+void run_motor(Servo motor, double power) {
+  power *= 100;
+  int pulse_us = TALON_CENTER_PULSE_US + (5*power);
+  if (pulse_us < TALON_MIN_PULSE_US) pulse_us = TALON_MIN_PULSE_US;
+  if (pulse_us > TALON_MAX_PULSE_US) pulse_us = TALON_MAX_PULSE_US;
+  motor.writeMicroseconds(pulse_us);
+}
 
 float update_pivot(float angle, double power) {
   power = abs(power);
@@ -168,6 +131,19 @@ float update_pivot(float angle, double power) {
   run_motor(pivot, 0);
 }
 
+void pivot_home() {
+  int pivotState = digitalRead(20);
+
+  while(pivotState != 0) {
+    run_motor(pivot, 0.2);
+    pivotState = digitalRead(20);
+  }
+
+  run_motor(pivot, 0);
+
+  pivotEnc.write(0);
+}
+
 float degreesToTicks(float degrees) {
   return degrees*ticksPerDegree;
 }
@@ -176,12 +152,41 @@ float ticksToDegrees(float ticks) {
   return ticks/ticksPerDegree;
 }
 
+String command = "";
+String data = "";
 
+void run_command() {
+  Serial.println(command);
+  Serial.println(data);
+  if (command == "m") {
+
+  }
+
+  if (command == "pivot") {
+    run_motor(pivot, data.toFloat());
+  }
+
+  if (command == "pivothome") {
+    pivot_home();
+  }
+}
+
+typedef enum CommandState {
+  COMMAND_IDLE,
+  COMMAND,
+  DATA,
+  EXECUTE
+};
+
+CommandState commandState = COMMAND_IDLE;
 
 void setup() {
-  //Attach motors
-  Serial.begin(115200);
-  Serial.setTimeout(30);
+  // put your setup code here, to run once:
+  Serial.begin(500000, SERIAL_8N2);
+  Serial.println("SERIAL INITIALIZED");
+  Serial.setTimeout(20);
+  Serial.println("STARTING MAIN LOOP");
+  commandState = COMMAND_IDLE;
   left_front.attach(LEFT_FRONT_PIN);
   left_back.attach(LEFT_BACK_PIN);
   right_front.attach(RIGHT_FRONT_PIN);
@@ -207,129 +212,45 @@ void setup() {
   //close electronic solenoids when initializing
   digitalWrite(LEFT_SHOOT, HIGH);
   digitalWrite(RIGHT_SHOOT, HIGH);
-
-  int pivotState = digitalRead(20);
-
-  while(pivotState != 0) {
-    run_motor(pivot, 0.2);
-    pivotState = digitalRead(20);
-  }
-
-  run_motor(pivot, 0);
-
-  pivotEnc.write(0);
-
-  update_pivot(30, 0.4);
-}
-
-enum commandState {
-  idle,
-  readingCommand,
-  readingPayload,
-  executeCommand
-};
-
-commandState state = commandState::idle;
-
-String command = "";
-String payload = "";
-String payload2 = "";
-
-void runCommand() {
-  if (command == "m") {
-      Serial.println("RUN MOTOR");
-      Serial.println(payload.toFloat());
-      run_motor(left_front, payload.toFloat());
-      run_motor(left_back, payload.toFloat());
-      run_motor(right_front, payload2.toFloat());
-      run_motor(right_back, payload2.toFloat());
-  }
-
-  if (command == "b4" && payload == "true") {
-     pop_left();
-     delay(500);
-     eject_left();
-     delay(500);
-     retract_left();
-     delay(500);
-     push_left();
-  }
-
-  if (command == "b5" && payload == "true") {
-     //pop_left();
-     pop_right();
-     delay(500);
-     //eject_left();
-     eject_right();
-     delay(500);
-     //retract_left();
-     retract_right();
-     delay(500);
-     push_right();
-  }
-
-  if (command == "b6" && payload == "true") {
-    Serial.println(pivotEnc.read());
-    run_motor(pivot, -0.2);
-  }
-
-  if (command == "b6" && payload == "false") {
-    Serial.println(pivotEnc.read());
-    run_motor(pivot, 0);
-  }
-
-  if (command == "b7" && payload == "true") {
-    Serial.println(pivotEnc.read());
-    run_motor(pivot, 0.2);
-  }
-
-  if (command == "b7" && payload == "false") {
-    Serial.println(pivotEnc.read());
-    run_motor(pivot, 0);
-  }
-
-  if (command == "b8" && payload == "true") {
-    shoot_left(30);
-  }
-
-  if (command == "b9" && payload == "true") {
-    shoot_right(30);
-  }
+  pivot_home();
 }
 
 void loop() {
-  //Update encoder
-  pivotPos = pivotEnc.read();
-  Serial.println(pivotPos);
+  while (true) {
+    pivotPos = pivotEnc.read();
+    if (Serial.available() > 1) {
+      char incomingByte = Serial.read();
 
-  if (Serial.available()) {
-    Serial.println("Reading");
+      switch(incomingByte) {
+        case '>':
+          commandState = COMMAND;
+          continue;
+          break;
+        case ',':
+          commandState = DATA;
+          continue;
+          break;
+        case ';':
+          commandState = EXECUTE;
+          break;
+      }
 
-    String letter = Serial.readString();
+      switch(commandState) {
+        case COMMAND:
+          command = command + incomingByte;
+          break;
+        case DATA:
+          data = data + incomingByte;
+          break;
+        case EXECUTE:
+          run_command();
+          command = "";
+          data = "";
+          commandState = COMMAND_IDLE;
+          break;
+      }
 
-    int parenPos = letter.indexOf("(");
-    int paren2Pos = letter.indexOf(")");
-
-    int comma = letter.indexOf(",");
-
-    command = letter.substring(0, letter.indexOf("("));
-
-    if (comma != -1) {
-      payload = letter.substring(parenPos + 1, comma);
-      payload2 = letter.substring(comma + 2, paren2Pos);
-    } else {
-      payload = letter.substring(parenPos + 1, paren2Pos);
+      Serial.flush();
     }
-
-    Serial.println(command);
-    Serial.println(payload);
-    Serial.println(payload2);
-
-    runCommand();
-
-    command = "";
-    payload = "";
-    payload2 = "";
-    delay(200);
   }
 }

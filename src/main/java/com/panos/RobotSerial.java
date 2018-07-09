@@ -7,35 +7,34 @@ public class RobotSerial {
 
     // Connect to the serial port on the Arduino
     public RobotSerial() {
-        // Get a list of all Serial ports on the device
+        // Get sysfs serial port
         File initialFile = new File("/dev/ttyACM0");
         try {
+            // Get an input stream so we can get what the Arduino prints out
             InputStream targetStream = new FileInputStream(initialFile);
+            // Make a new output stream so we can send to the Arduino
             port = new FileOutputStream(initialFile);
-            java.util.Scanner s = new java.util.Scanner(targetStream).useDelimiter("\r\n");
+            Thread.sleep(2000);
             Thread thread = new Thread(() -> {
                 while (true) {
-                    Log.arduino(s.hasNext() ? s.next() : "");
+                    try {
+                        if (targetStream.available() > 1) {
+                            Log.arduino(Character.toString((char) targetStream.read()));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             thread.start();
             Log.serial("SERIAL PORT OPENED");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-//    public void serialEvent(SerialPortEvent event) {
-//        if (event.isRXCHAR() && event.getEventValue() > 0) {
-//            int bytesCount = event.getEventValue();
-//            try {
-//                Log.arduino(port.readString(bytesCount));
-//            } catch (SerialPortException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//
     public void sendCommand(String s) {
         Log.serial("SENDING: " + s);
         try {
