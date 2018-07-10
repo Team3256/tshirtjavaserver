@@ -31,11 +31,20 @@ public class Robot implements ControllerListener {
     public void onButtonPress(int button, boolean isPressed) {
         switch (button) {
             case A:
-                if (isPressed) {
-                    Log.robot("A Pressed");
-                } else {
-                    Log.robot("A Depressed");
-                }
+                if (isPressed)
+                    shooter.moveToAngle(30);
+                break;
+            case B:
+                if (isPressed)
+                    shooter.moveToAngle(35);
+                break;
+            case X:
+                if (isPressed)
+                    shooter.moveToAngle(40);
+                break;
+            case Y:
+                if (isPressed)
+                    shooter.moveToAngle(45);
                 break;
             case DPadUp:
                 if (isPressed) {

@@ -1,5 +1,6 @@
 package com.panos.subsystems;
 
+import com.panos.Log;
 import com.panos.RobotSerial;
 import com.panos.Subsystem;
 import com.panos.Utils;
@@ -17,6 +18,11 @@ public class Shooter implements Subsystem {
 
     public void setPivotSpeed(double speed) {
         serial.sendCommand(">pivot," + speed + ";");
+    }
+
+    public void moveToAngle(int angle) {
+        Log.robot("MOVING PIVOT TO " + angle + " DEGREES");
+        serial.sendCommand(">pivotangle," + angle + ";");
     }
 
     public void pivotHome() {

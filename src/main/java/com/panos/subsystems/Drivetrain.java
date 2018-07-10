@@ -16,7 +16,8 @@ public class Drivetrain implements Subsystem {
 
     // Send command to Arduino to handle PWM singles
     public void setMotorPower(float left, float right) {
-        serial.sendCommand(">motor," + left + "," + right + ";");
+        serial.sendCommand(">motorleft," + left + ";");
+        serial.sendCommand(">motorright," + right + ";");
     }
 
     public void tankDrive(float left, float right) {
