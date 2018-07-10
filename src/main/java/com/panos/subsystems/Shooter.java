@@ -1,16 +1,18 @@
 package com.panos.subsystems;
 
 import com.panos.RobotSerial;
+import com.panos.Subsystem;
+import com.panos.Utils;
 
 // This class controls the shooter from the Java code
-public class Shooter {
+public class Shooter implements Subsystem {
     private RobotSerial serial;
 
     private boolean reloadingLeft = false;
     private boolean reloadingRight = false;
 
-    public Shooter(RobotSerial serial) {
-        this.serial = serial;
+    public Shooter() {
+
     }
 
     public void setPivotSpeed(double speed) {
@@ -108,5 +110,17 @@ public class Shooter {
 
     public void shootRight(int power) {
         serial.sendCommand(">shootr," + power + ";");
+    }
+
+    @Override
+    public void emergencyStop() {
+        pivotHome();
+        Utils.delay(3000);
+        serial.sendCommand(">retractl;>pushl;>retractr;>pushr;");
+    }
+
+    @Override
+    public void setSerial(RobotSerial serial) {
+        this.serial = serial;
     }
 }

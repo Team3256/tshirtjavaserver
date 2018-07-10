@@ -3,27 +3,28 @@ package com.panos;
 import com.panos.subsystems.Drivetrain;
 import com.panos.subsystems.Shooter;
 
-import static com.panos.ButtonType.*;
+import static com.panos.constants.ButtonType.*;
 
 public class Robot implements ControllerListener {
     private RobotSerial serial;
     private Drivetrain drivetrain;
     private Shooter shooter;
 
-    private float previousLeft = -1;
-    private float previousRight = -1;
-
     // Init subsystems
     public Robot() {
         serial = new RobotSerial();
-        drivetrain = new Drivetrain(serial);
-        shooter = new Shooter(serial);
+
+        drivetrain = new Drivetrain();
+        shooter = new Shooter();
+
+        drivetrain.setSerial(serial);
+        shooter.setSerial(serial);
     }
 
     // Run things when the joysticks change
     public void onAxisChange(float lx, float ly, float rx, float ry) {
         //arcadeDrive(ly, rx);
-        tankDrive(ly, ry);
+        drivetrain.tankDrive(ly, ry);
     }
 
     // Run things on the button press
@@ -93,26 +94,7 @@ public class Robot implements ControllerListener {
     }
 
     public void emergencyStop() {
-        drivetrain.setMotorPower(0, 0);
-    }
-
-    public void arcadeDrive(float left, float right) {
-        if (previousLeft != left || previousRight != right) {
-            Log.robot("Throttle: " + left);
-            Log.robot("Turn: " + right);
-            previousLeft = left;
-            previousRight = right;
-            drivetrain.setMotorPower(left, right);
-        }
-    }
-
-    public void tankDrive(float left, float right) {
-        left = left > 0 ? 0.5F : (left < 0 ? -0.5F : 0);
-        right = right > 0 ? -0.5F : (right < 0 ? 0.5F : 0);
-        if (previousLeft != left || previousRight != right) {
-            previousLeft = left;
-            previousRight = right;
-            drivetrain.setMotorPower(left, right);
-        }
+        drivetrain.emergencyStop();
+        shooter.emergencyStop();
     }
 }

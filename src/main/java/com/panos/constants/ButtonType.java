@@ -1,7 +1,6 @@
-package com.panos;
+package com.panos.constants;
 
-// This class allows us to use human friendly names
-// to distinguish button presses
+// This class allows us to use human friendly names to distinguish button presses
 public final class ButtonType {
     public static final int A = 0;
     public static final int B = 1;
