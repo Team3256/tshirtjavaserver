@@ -40,7 +40,7 @@ public class Drivetrain implements Subsystem {
         rightPower = Math.min(Math.max(rightPower, -1), 1);;
 
         leftPower = leftPower * 0.5f;
-        rightPower = rightPower * 0.5f;
+        rightPower = (rightPower * 0.5f) * -1;
 
         if (previousLeft != leftPower || previousRight != rightPower) {
             previousLeft = leftPower;
