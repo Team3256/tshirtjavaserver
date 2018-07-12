@@ -24,7 +24,7 @@ public class Robot implements ControllerListener {
     // Run things when the joysticks change
     public void onAxisChange(float lx, float ly, float rx, float ry) {
         //arcadeDrive(ly, rx);
-        drivetrain.tankDrive(ly, ry);
+        drivetrain.arcadeDrive(ly, rx);
     }
 
     // Run things on the button press

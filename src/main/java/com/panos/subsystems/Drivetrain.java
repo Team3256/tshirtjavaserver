@@ -32,6 +32,23 @@ public class Drivetrain implements Subsystem {
         }
     }
 
+    public void arcadeDrive(float left, float right) {
+        float leftPower = left + right;
+        float rightPower = left - right;
+
+        leftPower = Math.min(Math.max(leftPower, -1), 1);;
+        rightPower = Math.min(Math.max(rightPower, -1), 1);;
+
+        leftPower = leftPower * 0.5f;
+        rightPower = rightPower * 0.5f;
+
+        if (previousLeft != leftPower || previousRight != rightPower) {
+            previousLeft = leftPower;
+            previousRight = rightPower;
+            setMotorPower(leftPower, rightPower);
+        }
+    }
+
     @Override
     public void emergencyStop() {
         setMotorPower(0, 0);
