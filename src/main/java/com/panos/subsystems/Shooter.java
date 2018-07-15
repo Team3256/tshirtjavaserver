@@ -68,6 +68,18 @@ public class Shooter implements Subsystem {
         }
     }
 
+    public void pushLeft() {
+        if (!reloadingRight) {
+            serial.sendCommand(">pushl;");
+        }
+    }
+
+    public void pushRight() {
+        if (!reloadingRight) {
+            serial.sendCommand(">pushr;");
+        }
+    }
+
     public void reloadLeft() {
         if (!reloadingLeft) {
             reloadingLeft = true;
@@ -120,9 +132,11 @@ public class Shooter implements Subsystem {
 
     @Override
     public void emergencyStop() {
+        Log.robot("RETURNING BARRELS TO IDLE POSITION");
+        serial.sendCommand(">retractl;>pushl;>retractr;>pushr;");
+        Log.robot("MOVING PIVOT TO HOME POSITION");
         pivotHome();
         Utils.delay(3000);
-        serial.sendCommand(">retractl;>pushl;>retractr;>pushr;");
     }
 
     @Override

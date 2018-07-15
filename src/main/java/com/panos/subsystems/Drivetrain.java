@@ -1,5 +1,6 @@
 package com.panos.subsystems;
 
+import com.panos.Log;
 import com.panos.RobotSerial;
 import com.panos.Subsystem;
 
@@ -51,6 +52,7 @@ public class Drivetrain implements Subsystem {
 
     @Override
     public void emergencyStop() {
+        Log.robot("SETTING MOTOR POWER TO 0");
         setMotorPower(0, 0);
     }
 

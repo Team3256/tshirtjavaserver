@@ -27,8 +27,8 @@ public class Main {
             @Override
             public void onClose(WebSocket webSocket, int i, String s, boolean b) {
                 Log.removeSocket(webSocket);
-                robot.emergencyStop();
                 Log.server(webSocket.getRemoteSocketAddress().getAddress().toString() + " DISCONNECTED");
+                robot.emergencyStop();
             }
 
             // When the server gets controller input, parse the input and act upon it

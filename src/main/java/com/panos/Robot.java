@@ -68,7 +68,7 @@ public class Robot implements ControllerListener {
                 if (isPressed) {
                     shooter.popLeft();
                 } else {
-                    shooter.retractLeft();
+                    shooter.pushLeft();
                 }
                 break;
             case ClickRight:
@@ -76,7 +76,7 @@ public class Robot implements ControllerListener {
                     shooter.popRight();
                 }
                 else {
-                    shooter.retractRight();
+                    shooter.pushRight();
                 }
                 break;
             case LeftShoulder:
@@ -103,7 +103,9 @@ public class Robot implements ControllerListener {
     }
 
     public void emergencyStop() {
+        Log.robot("EMERGENCY STOP");
         drivetrain.emergencyStop();
         shooter.emergencyStop();
+        Log.robot("ROBOT DISABLED");
     }
 }
