@@ -1,19 +1,33 @@
 package com.panos.subsystems;
 
+import com.panos.drives.ArcadeDrive;
+import com.panos.drives.TankDrive;
+import com.panos.drives.VariableTankDrive;
+import com.panos.interfaces.DriverSystem;
 import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
+
+import java.sql.Driver;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 // This class has methods to control driving,
 // and communicating that data to the Arduino
 public class Drivetrain implements Subsystem {
     private RobotSerial serial;
-
-    private float previousLeft = -1;
-    private float previousRight = -1;
+    private ArrayList<DriverSystem> driverSystems;
+    private int selectedDriverSystem;
 
     // Get access to serial object to send messages
-    public Drivetrain() {}
+    public Drivetrain() {
+        driverSystems = new ArrayList<>();
+        driverSystems.add(new TankDrive(this));
+        driverSystems.add(new ArcadeDrive(this));
+        driverSystems.add(new VariableTankDrive(this));
+        selectedDriverSystem = 0;
+    }
 
     // Send command to Arduino to handle PWM singles
     public void setMotorPower(float left, float right) {
@@ -21,33 +35,12 @@ public class Drivetrain implements Subsystem {
         serial.sendCommand(">motorright," + right + ";");
     }
 
-    public void tankDrive(float left, float right) {
-        // Make sure values don't exceed 0.5 so they don't overpower the motor
-        left = left > 0 ? 0.5F : (left < 0 ? -0.5F : 0);
-        right = right > 0 ? -0.5F : (right < 0 ? 0.5F : 0);
-
-        if (previousLeft != left || previousRight != right) {
-            previousLeft = left;
-            previousRight = right;
-            setMotorPower(left, right);
-        }
+    public ArrayList<DriverSystem> getDriverSystems() {
+        return driverSystems;
     }
 
-    public void arcadeDrive(float left, float right) {
-        float leftPower = left + right;
-        float rightPower = left - right;
-
-        leftPower = Math.min(Math.max(leftPower, -1), 1);;
-        rightPower = Math.min(Math.max(rightPower, -1), 1);;
-
-        leftPower = leftPower * 0.5f;
-        rightPower = (rightPower * 0.5f) * -1;
-
-        if (previousLeft != leftPower || previousRight != rightPower) {
-            previousLeft = leftPower;
-            previousRight = rightPower;
-            setMotorPower(leftPower, rightPower);
-        }
+    public void drive(float lx, float ly, float rx, float ry) {
+        driverSystems.get(selectedDriverSystem).onAxisChange(lx, ly, rx, ry);
     }
 
     @Override
@@ -59,5 +52,10 @@ public class Drivetrain implements Subsystem {
     @Override
     public void setSerial(RobotSerial serial) {
         this.serial = serial;
+    }
+
+    public void changeDrive() {
+        selectedDriverSystem = selectedDriverSystem + 1 == driverSystems.size() ? 0 : selectedDriverSystem + 1;
+        Log.robot("Setting drive system to " + driverSystems.get(selectedDriverSystem).getClass().getSimpleName());
     }
 }

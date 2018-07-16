@@ -25,8 +25,7 @@ public class Robot implements ControllerListener {
 
     // Run things when the joysticks change
     public void onAxisChange(float lx, float ly, float rx, float ry) {
-        //arcadeDrive(ly, rx);
-        drivetrain.arcadeDrive(ly, rx);
+        drivetrain.drive(lx, ly, rx, ry);
     }
 
     // Run things on the button press
@@ -46,7 +45,7 @@ public class Robot implements ControllerListener {
                 break;
             case Y:
                 if (isPressed)
-                    shooter.moveToAngle(45);
+                    drivetrain.changeDrive();
                 break;
             case DPadUp:
                 if (isPressed) {
