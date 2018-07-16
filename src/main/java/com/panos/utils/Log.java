@@ -1,6 +1,7 @@
-package com.panos;
+package com.panos.utils;
 
 import com.google.gson.Gson;
+import com.panos.Command;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;

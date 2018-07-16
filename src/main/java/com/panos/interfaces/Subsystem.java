@@ -1,4 +1,6 @@
-package com.panos;
+package com.panos.interfaces;
+
+import com.panos.RobotSerial;
 
 public interface Subsystem {
     void emergencyStop();

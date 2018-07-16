@@ -1,12 +1,13 @@
 package com.panos;
 import com.google.gson.Gson;
+import com.panos.utils.Log;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 public class Main {
     public static void main(String[] args) {
-        Log.log("MAIN", "PROGRAM START");
+        Log.log("MAIN", "Starting program");
 
         // Create new robot instance that handles low level communication
         Robot robot = new Robot();
@@ -20,7 +21,7 @@ public class Main {
             @Override
             public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
                 Log.addSocket(webSocket);
-                Log.server(webSocket.getRemoteSocketAddress().getAddress().toString() + " CONNECTED");
+                Log.server("Client " + webSocket.getRemoteSocketAddress().getAddress().toString() + " connected");
             }
 
             // When a client disconnects, disable the robot
@@ -58,12 +59,12 @@ public class Main {
             // When the
             @Override
             public void onStart() {
-                Log.server("STARTED");
+                Log.server("Server started successfully");
             }
         };
 
         // Print server IP to console
-        Log.server("ATTEMPTING TO RUN SERVER ON: " + server.getAddress());
+        Log.server("Running server at address " + server.getAddress());
 
         // Start server
         server.start();

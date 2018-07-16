@@ -1,4 +1,4 @@
-package com.panos;
+package com.panos.interfaces;
 
 // Interface for Controllers, in case we use different controllers
 public interface ControllerListener {

@@ -1,9 +1,9 @@
 package com.panos.subsystems;
 
-import com.panos.Log;
+import com.panos.utils.Log;
 import com.panos.RobotSerial;
-import com.panos.Subsystem;
-import com.panos.Utils;
+import com.panos.interfaces.Subsystem;
+import com.panos.utils.Utils;
 
 // This class controls the shooter from the Java code
 public class Shooter implements Subsystem {
@@ -21,80 +21,69 @@ public class Shooter implements Subsystem {
     }
 
     public void moveToAngle(int angle) {
-        Log.robot("MOVING PIVOT TO " + angle + " DEGREES");
+        Log.robot("Pivoting to " + angle + " degrees");
         serial.sendCommand(">pivotangle," + angle + ";");
     }
 
     public void pivotHome() {
         if (!reloadingLeft && !reloadingRight) {
+            Log.robot("Pivoting to home");
             serial.sendCommand(">pivothome;");
         }
     }
 
     public void popLeft() {
-        if (!reloadingLeft) {
-            serial.sendCommand(">popl;");
-        }
+        Log.robot("Opening left barrel");
+        serial.sendCommand(">popl;");
     }
 
     public void popRight() {
-        if (!reloadingRight) {
-            serial.sendCommand(">popr;");
-        }
+        Log.robot("Opening right barrel");
+        serial.sendCommand(">popr;");
     }
 
     public void ejectLeft() {
-        if (!reloadingLeft) {
-            serial.sendCommand(">ejectl;");
-        }
+        Log.robot("Ejecting left cartridge");
+        serial.sendCommand(">ejectl;");
     }
 
     public void ejectRight() {
-        if (!reloadingRight) {
-            serial.sendCommand(">ejectr;");
-        }
+        Log.robot("Ejecting right cartridge");
+        serial.sendCommand(">ejectr;");
     }
 
 
     public void retractLeft() {
-        if (!reloadingLeft) {
-            serial.sendCommand(">retractl;");
-        }
+        Log.robot("Retracting left actuator");
+        serial.sendCommand(">retractl;");
     }
 
     public void retractRight() {
-        if (!reloadingRight) {
-            serial.sendCommand(">retractr;");
-        }
+        Log.robot("Retracting right actuator");
+        serial.sendCommand(">retractr;");
     }
 
     public void pushLeft() {
-        if (!reloadingRight) {
-            serial.sendCommand(">pushl;");
-        }
+        Log.robot("Retracting left barrel");
+        serial.sendCommand(">pushl;");
     }
 
     public void pushRight() {
-        if (!reloadingRight) {
-            serial.sendCommand(">pushr;");
-        }
+        Log.robot("Retracting right barrel");
+        serial.sendCommand(">pushr;");
     }
 
     public void reloadLeft() {
         if (!reloadingLeft) {
             reloadingLeft = true;
             Thread thread = new Thread(() -> {
-                try {
-                    serial.sendCommand(">popl;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">ejectl;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">retractl;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">pushl;");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                popLeft();
+                Utils.delay(200);
+                ejectLeft();
+                Utils.delay(300);
+                retractLeft();
+                Utils.delay(300);
+                pushLeft();
                 reloadingLeft = false;
             });
             thread.start();
@@ -105,17 +94,13 @@ public class Shooter implements Subsystem {
         if (!reloadingRight) {
             reloadingRight = true;
             Thread thread = new Thread(() -> {
-                try {
-                    serial.sendCommand(">popr;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">ejectr;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">retractr;");
-                    Thread.sleep(500);
-                    serial.sendCommand(">pushr;");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                popRight();
+                Utils.delay(200);
+                ejectRight();
+                Utils.delay(300);
+                retractRight();
+                Utils.delay(300);
+                pushRight();
                 reloadingRight = false;
             });
             thread.start();
@@ -123,18 +108,19 @@ public class Shooter implements Subsystem {
     }
 
     public void shootLeft(int power) {
+        Log.robot("Shooting right barrel with power level " + power);
         serial.sendCommand(">shootl," + power + ";");
     }
 
     public void shootRight(int power) {
+        Log.robot("Shooting left barrel with power level " + power);
         serial.sendCommand(">shootr," + power + ";");
     }
 
     @Override
     public void emergencyStop() {
-        Log.robot("RETURNING BARRELS TO IDLE POSITION");
+        Log.robot("Moving barrels to idle position");
         serial.sendCommand(">retractl;>pushl;>retractr;>pushr;");
-        Log.robot("MOVING PIVOT TO HOME POSITION");
         pivotHome();
         Utils.delay(3000);
     }

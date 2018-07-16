@@ -1,7 +1,9 @@
 package com.panos;
 
+import com.panos.interfaces.ControllerListener;
 import com.panos.subsystems.Drivetrain;
 import com.panos.subsystems.Shooter;
+import com.panos.utils.Log;
 
 import static com.panos.constants.ButtonType.*;
 
@@ -103,9 +105,9 @@ public class Robot implements ControllerListener {
     }
 
     public void emergencyStop() {
-        Log.robot("EMERGENCY STOP");
+        Log.robot("Stopping robot...");
         drivetrain.emergencyStop();
         shooter.emergencyStop();
-        Log.robot("ROBOT DISABLED");
+        Log.robot("Robot successfully disabled");
     }
 }

@@ -1,5 +1,7 @@
 package com.panos;
 
+import com.panos.utils.Log;
+
 import java.io.*;
 
 public class RobotSerial {
@@ -33,7 +35,7 @@ public class RobotSerial {
     }
 
     public void sendCommand(String s) {
-        Log.serial("SENDING: " + s);
+        Log.serial("Sending: " + s);
 //        try {
 //            port.write(s.getBytes());
 //            //port.flush();
