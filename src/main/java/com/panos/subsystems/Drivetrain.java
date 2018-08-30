@@ -35,6 +35,15 @@ public class Drivetrain implements Subsystem {
         serial.sendCommand(">motorright," + right + ";");
     }
 
+    public void setRightMotorPower(float right) {
+        serial.sendCommand(">motorright," + right + ";");
+    }
+
+    public void setLeftMotorPower(float left) {
+        left = left * -1;
+        serial.sendCommand(">motorleft," + left + ";");
+    }
+
     public ArrayList<DriverSystem> getDriverSystems() {
         return driverSystems;
     }

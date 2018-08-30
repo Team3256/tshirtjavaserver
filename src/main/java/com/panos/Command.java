@@ -1,19 +1,22 @@
 package com.panos;
 
 public class Command {
-    public String command;
+    public String command = "";
 
     // Controller Values
-    public float lx;
-    public float ly;
-    public float rx;
-    public float ry;
+    public float lx = 0;
+    public float ly = 0;
+    public float rx = 0;
+    public float ry = 0;
 
     // Button values
-    public int button;
-    public boolean isPressed;
+    public int button = -1;
+    public boolean isPressed = false;
 
-    public String message;
+    public String message = "";
+
+    public int version = -1;
+    public double pivotAcceleration = 0;
 
     public Command() {
 

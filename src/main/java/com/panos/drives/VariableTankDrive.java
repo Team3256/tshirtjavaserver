@@ -13,10 +13,14 @@ public class VariableTankDrive extends TankDrive {
         float left = ly * 0.5f;
         float right = ry  * 0.5f * -1;
 
-        if (getPreviousLeft() != left || getPreviousRight() != right) {
+        if (left > getPreviousLeft() + 0.05 || left < getPreviousLeft() - 0.05) {
+            getDrivetrain().setLeftMotorPower(left);
             setPreviousLeft(left);
+        }
+
+        if (right > getPreviousRight() + 0.05 || right < getPreviousRight() - 0.05) {
+            getDrivetrain().setRightMotorPower(right);
             setPreviousRight(right);
-            getDrivetrain().setMotorPower(left, right);
         }
     }
 }

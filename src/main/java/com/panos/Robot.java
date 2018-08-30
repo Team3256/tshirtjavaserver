@@ -2,8 +2,10 @@ package com.panos;
 
 import com.panos.interfaces.ControllerListener;
 import com.panos.subsystems.Drivetrain;
+import com.panos.subsystems.SafetyLight;
 import com.panos.subsystems.Shooter;
 import com.panos.utils.Log;
+import com.panos.utils.Utils;
 
 import static com.panos.constants.ButtonType.*;
 
@@ -11,6 +13,7 @@ public class Robot implements ControllerListener {
     private RobotSerial serial;
     private Drivetrain drivetrain;
     private Shooter shooter;
+    private SafetyLight safetyLight;
 
     // Init subsystems
     public Robot() {
@@ -18,9 +21,11 @@ public class Robot implements ControllerListener {
 
         drivetrain = new Drivetrain();
         shooter = new Shooter();
+        safetyLight = new SafetyLight();
 
         drivetrain.setSerial(serial);
         shooter.setSerial(serial);
+        safetyLight.setSerial(serial);
     }
 
     // Run things when the joysticks change
@@ -108,5 +113,9 @@ public class Robot implements ControllerListener {
         drivetrain.emergencyStop();
         shooter.emergencyStop();
         Log.robot("Robot successfully disabled");
+    }
+
+    public void onConnect() {
+        safetyLight.setIsBlinking(true);
     }
 }

@@ -121,6 +121,7 @@ public class Shooter implements Subsystem {
     public void emergencyStop() {
         Log.robot("Moving barrels to idle position");
         serial.sendCommand(">retractl;>pushl;>retractr;>pushr;");
+        Utils.delay(1000);
         pivotHome();
         Utils.delay(3000);
     }

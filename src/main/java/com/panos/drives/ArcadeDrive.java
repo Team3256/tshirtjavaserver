@@ -2,6 +2,7 @@ package com.panos.drives;
 
 import com.panos.interfaces.DriverSystem;
 import com.panos.subsystems.Drivetrain;
+import com.panos.utils.Utils;
 
 public class ArcadeDrive implements DriverSystem {
     private Drivetrain drivetrain;
@@ -20,20 +21,25 @@ public class ArcadeDrive implements DriverSystem {
     public void onAxisChange(float lx, float ly, float rx, float ry) {
         float left = ly;
         float right = rx;
-        float leftPower = left + right;
-        float rightPower = left - right;
+        float leftPower = left - right;
+        float rightPower = left + right;
 
-        leftPower = Math.min(Math.max(leftPower, -1), 1);;
-        rightPower = Math.min(Math.max(rightPower, -1), 1);;
+        leftPower = Math.min(Math.max(leftPower, -1), 1);
+        rightPower = Math.min(Math.max(rightPower, -1), 1);
 
         leftPower = leftPower * 0.5f;
-        rightPower = (rightPower * 0.5f) * -1;
+        rightPower = rightPower * 0.5f;
 
-        if (previousLeft != leftPower || previousRight != rightPower) {
+        if (leftPower > previousLeft + 0.005 || leftPower < previousLeft - 0.005) {
+            drivetrain.setLeftMotorPower(leftPower);
             previousLeft = leftPower;
-            previousRight = rightPower;
-            drivetrain.setMotorPower(leftPower, rightPower);
         }
+
+        if (rightPower > previousRight + 0.005 || rightPower < previousRight - 0.005) {
+            drivetrain.setRightMotorPower(rightPower);
+            previousRight = rightPower;
+        }
+        Utils.delay(5);
     }
 
     @Override

@@ -22,6 +22,7 @@ public class Main {
             public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
                 Log.addSocket(webSocket);
                 Log.server("Client " + webSocket.getRemoteSocketAddress().getAddress().toString() + " connected");
+                robot.onConnect();
             }
 
             // When a client disconnects, disable the robot
@@ -35,6 +36,7 @@ public class Main {
             // When the server gets controller input, parse the input and act upon it
             @Override
             public void onMessage(WebSocket webSocket, String s) {
+                Log.log("MAIN", s);
                 // Deserialize JSON into a Java object of class Command
                 Command command = gson.fromJson(s, Command.class);
 
@@ -46,6 +48,10 @@ public class Main {
                 // If joysticks change, send that to the robot
                 if (command.command.equals("axis")) {
                     robot.onAxisChange(command.lx, command.ly, command.rx, command.ry);
+                }
+
+                if (command.version == 2) {
+                    Log.robot(String.valueOf(command.pivotAcceleration));
                 }
             }
 

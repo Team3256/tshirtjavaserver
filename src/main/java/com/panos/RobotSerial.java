@@ -9,7 +9,7 @@ public class RobotSerial {
 
     // Connect to the serial port on the Arduino
     public RobotSerial() {
-//        // Get sysfs serial port
+        // Get sysfs serial port
 //        File initialFile = new File("/dev/ttyACM0");
 //        try {
 //            // Get an input stream so we can get what the Arduino prints out
