@@ -97,12 +97,12 @@ public class Robot implements ControllerListener {
                 break;
             case LeftTrigger:
                 if (isPressed) {
-                    shooter.shootLeft(40);
+                    shooter.shootLeft(100);
                 }
                 break;
             case RightTrigger:
                 if (isPressed) {
-                    shooter.shootRight(40);
+                    shooter.shootRight(100);
                 }
                 break;
         }
