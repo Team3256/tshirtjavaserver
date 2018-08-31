@@ -181,7 +181,7 @@ void run_command() {
   }
 
   if (command == "pivotangle") {
-    update_pivot(data.toInt(), 0.5);
+    update_pivot(data.toInt(), 0.1);
   }
 
   if (command == "popl") {
