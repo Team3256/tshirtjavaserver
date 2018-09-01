@@ -78,10 +78,5 @@ public class Main {
 
         // Start server
         server.start();
-
-//        String nut = ">updatePivot:120";
-//        Log.server(nut.substring(nut.indexOf(">") + 1, nut.indexOf(":")));
-//        Log.server(String.valueOf(nut.substring((nut.indexOf(":") + 1))));
-//        Log.server(nut);
     }
 }

@@ -21,7 +21,7 @@ public class RobotSerial {
     // Connect to the serial port on the Arduino
     public RobotSerial() {
         // Get sysfs serial port
-        File initialFile = new File("C:\\DEV\\nut.txt");
+        File initialFile = new File("/dev/ttyACM0");
         try {
             // Get an input stream so we can get what the Arduino prints out
             //InputStream targetStream = new FileInputStream();
@@ -89,11 +89,11 @@ public class RobotSerial {
 
     public void sendCommand(String s) {
         Log.serial("Sending: " + s);
-//        try {
-//            //port.write(s.getBytes());
-//            //port.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            //port.write(s.getBytes());
+            //port.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
