@@ -12,7 +12,7 @@ public class Location {
     }
 
     // Return distance between this location and that location
-    // measured in statute miles
+    // measured in feet
     public double distanceTo(Location that) {
         double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
         double lat1 = Math.toRadians(this.latitude);
