@@ -30,6 +30,7 @@ public class ArcadeDrive implements DriverSystem {
         leftPower = leftPower * 0.5f;
         rightPower = rightPower * 0.5f;
 
+
         if (leftPower > previousLeft + 0.005 || leftPower < previousLeft - 0.005) {
             drivetrain.setLeftMotorPower(leftPower);
             previousLeft = leftPower;

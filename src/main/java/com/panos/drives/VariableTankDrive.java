@@ -13,6 +13,9 @@ public class VariableTankDrive extends TankDrive {
         float left = ly * 0.5f;
         float right = ry  * 0.5f * -1;
 
+        left = Math.min(Math.max(left, -0.5f), 0.5f);
+        right = Math.min(Math.max(right, -0.5f), 0.5f);
+
         if (left > getPreviousLeft() + 0.05 || left < getPreviousLeft() - 0.05) {
             getDrivetrain().setLeftMotorPower(left);
             setPreviousLeft(left);

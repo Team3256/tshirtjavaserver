@@ -7,9 +7,11 @@ import com.panos.subsystems.Shooter;
 import com.panos.utils.Log;
 import com.panos.utils.Utils;
 
+import java.util.TimerTask;
+
 import static com.panos.constants.ButtonType.*;
 
-public class Robot implements ControllerListener {
+public class Robot extends TimerTask implements ControllerListener {
     private RobotSerial serial;
     private Drivetrain drivetrain;
     private Shooter shooter;
@@ -26,6 +28,12 @@ public class Robot implements ControllerListener {
         drivetrain.setSerial(serial);
         shooter.setSerial(serial);
         safetyLight.setSerial(serial);
+
+        serial.shooter = shooter;
+    }
+
+    public void run() {
+        shooter.update();
     }
 
     // Run things when the joysticks change
@@ -68,7 +76,7 @@ public class Robot implements ControllerListener {
                 break;
             case Select:
                 if (isPressed)
-                    shooter.pivotHome();
+                    shooter.setState(Shooter.State.PIVOTING_HOME);
                 break;
             case ClickLeft:
                 if (isPressed) {
@@ -87,22 +95,22 @@ public class Robot implements ControllerListener {
                 break;
             case LeftShoulder:
                 if (isPressed) {
-                    shooter.reloadLeft();
+                    shooter.setState(Shooter.State.RELOADING_LEFT);
                 }
                 break;
             case RightShoulder:
                 if (isPressed) {
-                    shooter.reloadRight();
+                    shooter.setState(Shooter.State.RELOADING_RIGHT);
                 }
                 break;
             case LeftTrigger:
                 if (isPressed) {
-                    shooter.shootLeft(100);
+                    shooter.setState(Shooter.State.WANTS_TO_SHOOT_LEFT);
                 }
                 break;
             case RightTrigger:
                 if (isPressed) {
-                    shooter.shootRight(100);
+                    shooter.setState(Shooter.State.WANTS_TO_SHOOT_RIGHT);
                 }
                 break;
         }

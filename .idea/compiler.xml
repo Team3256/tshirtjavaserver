@@ -9,8 +9,5 @@
         <module name="tshirt-server" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="tshirt-server" target="8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

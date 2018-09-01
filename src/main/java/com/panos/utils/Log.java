@@ -27,6 +27,8 @@ public class Log {
         printAndSend("[SERIAL] " + msg);
     }
 
+    public static void state(String msg) { log("STATE", msg);}
+
     public static void log(String level, String msg) {
         printAndSend("[" + level + "] " + msg);
     }

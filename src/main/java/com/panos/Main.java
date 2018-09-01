@@ -5,6 +5,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import java.util.Timer;
+
 public class Main {
     public static void main(String[] args) {
         Log.log("MAIN", "Starting program");
@@ -36,7 +38,7 @@ public class Main {
             // When the server gets controller input, parse the input and act upon it
             @Override
             public void onMessage(WebSocket webSocket, String s) {
-                Log.log("MAIN", s);
+                //Log.log("MAIN", s);
                 // Deserialize JSON into a Java object of class Command
                 Command command = gson.fromJson(s, Command.class);
 
@@ -66,6 +68,8 @@ public class Main {
             @Override
             public void onStart() {
                 Log.server("Server started successfully");
+                Timer timer = new Timer();
+                timer.schedule(robot, 0, 30);
             }
         };
 
@@ -74,5 +78,10 @@ public class Main {
 
         // Start server
         server.start();
+
+//        String nut = ">updatePivot:120";
+//        Log.server(nut.substring(nut.indexOf(">") + 1, nut.indexOf(":")));
+//        Log.server(String.valueOf(nut.substring((nut.indexOf(":") + 1))));
+//        Log.server(nut);
     }
 }

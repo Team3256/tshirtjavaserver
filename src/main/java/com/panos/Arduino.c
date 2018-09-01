@@ -160,8 +160,6 @@ String command = "";
 String data = "";
 
 void run_command() {
-  Serial.println(command);
-  Serial.println(data);
   if (command == "motorleft") {
     run_motor(left_front, data.toFloat());
     run_motor(left_back, data.toFloat());
@@ -237,9 +235,9 @@ CommandState commandState = COMMAND_IDLE;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(500000, SERIAL_8N2);
-  Serial.println("SERIAL INITIALIZED");
+  Serial.println(">msg:SERIAL INITIALIZED;");
   Serial.setTimeout(30);
-  Serial.println("STARTING MAIN LOOP");
+  Serial.println(">msg:STARTING MAIN LOOP;");
   commandState = COMMAND_IDLE;
   left_front.attach(LEFT_FRONT_PIN);
   left_back.attach(LEFT_BACK_PIN);
@@ -307,6 +305,7 @@ void loop() {
           commandState = COMMAND_IDLE;
           break;
       }
+      Serial.println(">updatePivotPos:" + pivotPos + ";");
       if (ticksToDegrees(pivotPos) > 45) {
         run_motor(pivot, 0.0);
       }
