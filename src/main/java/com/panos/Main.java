@@ -69,7 +69,7 @@ public class Main {
             public void onStart() {
                 Log.server("Server started successfully");
                 Timer timer = new Timer();
-                timer.schedule(robot, 0, 30);
+                timer.schedule(robot, 0, 5);
             }
         };
 
