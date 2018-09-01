@@ -12,7 +12,6 @@ public class Shooter implements Subsystem {
     private int pivotPosition = 0;
 
     public enum State {
-
         WANTS_TO_SHOOT_LEFT {
             @Override
             State run(Shooter shooter) {
