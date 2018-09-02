@@ -1,14 +1,9 @@
 package com.panos.subsystems;
 
 import com.panos.drives.ArcadeDrive;
-import com.panos.drives.TankDrive;
-import com.panos.drives.VariableTankDrive;
-import com.panos.interfaces.DriverSystem;
 import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
-
-import java.util.ArrayList;
 
 // This class has methods to control driving,
 // and communicating that data to the Arduino
@@ -17,6 +12,9 @@ public class Drivetrain implements Subsystem {
 
     private RobotSerial serial;
 
+    private String previousLeft = "";
+    private String previousRight = "";
+
     // Get access to serial object to send messages
     public Drivetrain() {
         serial = RobotSerial.getInstance();
@@ -24,8 +22,16 @@ public class Drivetrain implements Subsystem {
 
     // Send command to Arduino to handle PWM singles
     public void setMotorPower(double left, double right) {
-        serial.sendCommand(">motorleft," + left + ";");
-        serial.sendCommand(">motorright," + right + ";");
+        left *= -1;
+        String leftCommand = String.format("%.3f", left);
+        String rightCommand = String.format("%.3f", right);
+
+        if (!previousLeft.equals(leftCommand) || !previousRight.equals(rightCommand)) {
+            serial.sendCommand(">motorleft," + leftCommand + ";");
+            serial.sendCommand(">motorright," + rightCommand + ";");
+            previousLeft = leftCommand;
+            previousRight = rightCommand;
+        }
     }
 
     public void setRightMotorPower(double right) {

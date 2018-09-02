@@ -1,12 +1,11 @@
 package com.panos.drives;
 
-import com.panos.interfaces.DriverSystem;
 import com.panos.subsystems.Drivetrain;
 import com.panos.utils.Utils;
 
 public class ArcadeDrive {
     private static Drivetrain drivetrain = Drivetrain.getInstance();
-    private static final double logitechDeadband = 0.05;
+    private static final double logitechDeadband = 0.15;
 
     public static void onAxisChange(double lx, double ly, double rx, double ry) {
         double throttle = ly;
