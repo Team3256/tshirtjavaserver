@@ -13,10 +13,11 @@ public class Main {
     public static void main(String[] args) {
         Log.log("MAIN", "Starting program");
 
-        Location location = new Location(37.068362, -121.551386);
-        Location locationTwo = new Location(37.068330, -121.551510);
+        Location location = new Location(37.068433, -121.551317);
+        Location locationTwo = new Location(37.068390, -121.551236);
 
         Log.log("MATH", String.valueOf(ShooterMath.CalculateVelocity(location.distanceTo(locationTwo), 20)));
+        Log.log("MATH", String.valueOf(location.getAngle(locationTwo)));
 
         // Create new robot instance that handles low level communication
         Robot robot = new Robot();
