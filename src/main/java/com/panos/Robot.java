@@ -2,8 +2,10 @@ package com.panos;
 
 import com.panos.interfaces.ControllerListener;
 import com.panos.subsystems.Drivetrain;
+import com.panos.subsystems.RobotLocation;
 import com.panos.subsystems.SafetyLight;
 import com.panos.subsystems.Shooter;
+import com.panos.utils.Location;
 import com.panos.utils.Log;
 import com.panos.utils.Utils;
 
@@ -12,24 +14,25 @@ import java.util.TimerTask;
 import static com.panos.constants.ButtonType.*;
 
 public class Robot extends TimerTask implements ControllerListener {
+    private static Robot singleton = null;
+
     private RobotSerial serial;
     private Drivetrain drivetrain;
     private Shooter shooter;
     private SafetyLight safetyLight;
 
+    private RobotLocation robotLocation;
+
     // Init subsystems
     public Robot() {
-        serial = new RobotSerial();
-
-        drivetrain = new Drivetrain();
-        shooter = new Shooter();
+        serial = RobotSerial.getInstance();
+        drivetrain = Drivetrain.getInstance();
+        shooter = Shooter.getInstance();
         safetyLight = new SafetyLight();
+        robotLocation = RobotLocation.getInstance();
 
-        drivetrain.setSerial(serial);
-        shooter.setSerial(serial);
-        safetyLight.setSerial(serial);
-
-        serial.shooter = shooter;
+        Location location = new Location(37.068433, -121.551317);
+        robotLocation.setCurrentLocation(location);
     }
 
     public void run() {
@@ -37,7 +40,7 @@ public class Robot extends TimerTask implements ControllerListener {
     }
 
     // Run things when the joysticks change
-    public void onAxisChange(float lx, float ly, float rx, float ry) {
+    public void onAxisChange(double lx, double ly, double rx, double ry) {
         drivetrain.drive(lx, ly, rx, ry);
     }
 
@@ -57,8 +60,6 @@ public class Robot extends TimerTask implements ControllerListener {
                     shooter.moveToAngle(40);
                 break;
             case Y:
-                if (isPressed)
-                    drivetrain.changeDrive();
                 break;
             case DPadUp:
                 if (isPressed) {
@@ -125,5 +126,20 @@ public class Robot extends TimerTask implements ControllerListener {
 
     public void onConnect() {
         safetyLight.setIsBlinking(true);
+    }
+
+    public Shooter getShooter() {
+        return shooter;
+    }
+
+    public RobotLocation getRobotLocation() {
+        return robotLocation;
+    }
+
+    public static Robot getInstance() {
+        if (singleton == null) {
+            singleton = new Robot();
+        }
+        return singleton;
     }
 }

@@ -4,10 +4,10 @@ public class Command {
     public String command = "";
 
     // Controller Values
-    public float lx = 0;
-    public float ly = 0;
-    public float rx = 0;
-    public float ry = 0;
+    public double lx = 0;
+    public double ly = 0;
+    public double rx = 0;
+    public double ry = 0;
 
     // Button values
     public int button = -1;
@@ -27,7 +27,7 @@ public class Command {
         message = msg;
     }
 
-    public Command(float lx, float ly, float rx, float ry) {
+    public Command(double lx, double ly, double rx, double ry) {
         command = "axis";
         this.lx = lx;
         this.ly = ly;

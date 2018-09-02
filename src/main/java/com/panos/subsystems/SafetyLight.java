@@ -24,6 +24,7 @@ public class SafetyLight implements Subsystem {
 //            }
 //        });
 //        thread.start();
+        serial = RobotSerial.getInstance();
     }
 
     public void on() {
@@ -46,10 +47,5 @@ public class SafetyLight implements Subsystem {
     public void emergencyStop() {
         this.setIsBlinking(false);
         this.on();
-    }
-
-    @Override
-    public void setSerial(RobotSerial serial) {
-        this.serial = serial;
     }
 }

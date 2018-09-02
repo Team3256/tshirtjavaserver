@@ -1,5 +1,6 @@
 package com.panos;
 import com.google.gson.Gson;
+import com.panos.subsystems.RobotLocation;
 import com.panos.utils.Location;
 import com.panos.utils.Log;
 import com.panos.utils.ShooterMath;
@@ -13,14 +14,8 @@ public class Main {
     public static void main(String[] args) {
         Log.log("MAIN", "Starting program");
 
-        Location location = new Location(37.068433, -121.551317);
-        Location locationTwo = new Location(37.068390, -121.551236);
-
-        Log.log("MATH", String.valueOf(ShooterMath.CalculateVelocity(location.distanceTo(locationTwo), 20)));
-        Log.log("MATH", String.valueOf(location.getAngle(locationTwo)));
-
-        // Create new robot instance that handles low level communication
-        Robot robot = new Robot();
+        // Get robot instance that handles low level communication
+        Robot robot = Robot.getInstance();
 
         // Create GSON instance to decode JSON from client
         Gson gson = new Gson();

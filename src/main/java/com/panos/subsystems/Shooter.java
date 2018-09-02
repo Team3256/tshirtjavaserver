@@ -1,5 +1,7 @@
 package com.panos.subsystems;
 
+import com.panos.Robot;
+import com.panos.utils.Location;
 import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
@@ -7,67 +9,80 @@ import com.panos.utils.Utils;
 
 // This class controls the shooter from the Java code
 public class Shooter implements Subsystem {
+    private static Shooter singleton = null;
+
     private RobotSerial serial;
 
     private int pivotPosition = 0;
 
+    public Location targetLocation;
+
     public enum State {
         WANTS_TO_SHOOT_LEFT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Preparing to shoot left");
                 return SHOOTING_LEFT;
             }
         },
         WANTS_TO_SHOOT_RIGHT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Preparing to shoot right");
                 return SHOOTING_RIGHT;
             }
         },
+        TURN_TO_TARGET {
+            @Override
+            State run(Robot robot) {
+                Log.state("Preparing to turn to angle");
+                Log.state(robot.getRobotLocation().getCurrentLocation().toString());
+                Log.state("Angle: " + robot.getRobotLocation().getCurrentLocation().getAngle(Shooter.getInstance().targetLocation));
+                return IDLE;
+            }
+        },
         SHOOTING_LEFT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Shooting Left");
-                shooter.shootLeft(40);
+                robot.getShooter().shootLeft(40);
                 return IDLE;
             }
         },
         SHOOTING_RIGHT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Shooting Right");
-                shooter.shootRight(40);
+                robot.getShooter().shootRight(40);
                 return IDLE;
             }
         },
         RELOADING_LEFT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Reloading Right");
-                shooter.reloadLeft();
+                robot.getShooter().reloadLeft();
                 return IDLE;
             }
         },
         RELOADING_RIGHT {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Reloading Right");
-                shooter.reloadRight();
+                robot.getShooter().reloadRight();
                 return IDLE;
             }
         },
         PIVOTING_HOME {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 Log.state("Pivoting Home");
-                shooter.pivotHome();
+                Shooter.getInstance().pivotHome();
                 int pivotPos = -1;
                 while (pivotPos != 0) {
                     Log.arduino("WAITING: " + pivotPos);
                     Utils.delay(1000);
-                    pivotPos = shooter.pivotPosition;
+                    pivotPos = Shooter.getInstance().pivotPosition;
                 }
                 Log.robot("Pivot Homed");
                 return IDLE;
@@ -75,23 +90,24 @@ public class Shooter implements Subsystem {
         },
         IDLE {
             @Override
-            State run(Shooter shooter) {
+            State run(Robot robot) {
                 //System.out.println("Idle State");
                 return IDLE;
             }
         };
 
-        abstract State run(Shooter shooter);
+        abstract State run(Robot robot);
     }
 
     private State state;
 
     public Shooter() {
         state = State.IDLE;
+        serial = RobotSerial.getInstance();
     }
 
     public void update() {
-        state = state.run(this);
+        state = state.run(Robot.getInstance());
     }
 
     public void setState(State state) {
@@ -194,8 +210,10 @@ public class Shooter implements Subsystem {
         setState(State.PIVOTING_HOME);
     }
 
-    @Override
-    public void setSerial(RobotSerial serial) {
-        this.serial = serial;
+    public static Shooter getInstance() {
+        if (singleton == null) {
+            singleton = new Shooter();
+        }
+        return singleton;
     }
 }

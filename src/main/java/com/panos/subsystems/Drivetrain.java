@@ -8,48 +8,37 @@ import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
 
-import java.sql.Driver;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
 
 // This class has methods to control driving,
 // and communicating that data to the Arduino
 public class Drivetrain implements Subsystem {
+    private static Drivetrain singleton = null;
+
     private RobotSerial serial;
-    private ArrayList<DriverSystem> driverSystems;
-    private int selectedDriverSystem;
 
     // Get access to serial object to send messages
     public Drivetrain() {
-        driverSystems = new ArrayList<>();
-        driverSystems.add(new TankDrive(this));
-        driverSystems.add(new ArcadeDrive(this));
-        driverSystems.add(new VariableTankDrive(this));
-        selectedDriverSystem = 0;
+        serial = RobotSerial.getInstance();
     }
 
     // Send command to Arduino to handle PWM singles
-    public void setMotorPower(float left, float right) {
+    public void setMotorPower(double left, double right) {
         serial.sendCommand(">motorleft," + left + ";");
         serial.sendCommand(">motorright," + right + ";");
     }
 
-    public void setRightMotorPower(float right) {
+    public void setRightMotorPower(double right) {
         serial.sendCommand(">motorright," + right + ";");
     }
 
-    public void setLeftMotorPower(float left) {
+    public void setLeftMotorPower(double left) {
         left = left * -1;
         serial.sendCommand(">motorleft," + left + ";");
     }
 
-    public ArrayList<DriverSystem> getDriverSystems() {
-        return driverSystems;
-    }
-
-    public void drive(float lx, float ly, float rx, float ry) {
-        driverSystems.get(selectedDriverSystem).onAxisChange(lx, ly, rx, ry);
+    public void drive(double lx, double ly, double rx, double ry) {
+        ArcadeDrive.onAxisChange(lx, ly, rx, ry);
     }
 
     @Override
@@ -58,13 +47,10 @@ public class Drivetrain implements Subsystem {
         setMotorPower(0, 0);
     }
 
-    @Override
-    public void setSerial(RobotSerial serial) {
-        this.serial = serial;
-    }
-
-    public void changeDrive() {
-        selectedDriverSystem = selectedDriverSystem + 1 == driverSystems.size() ? 0 : selectedDriverSystem + 1;
-        Log.robot("Setting drive system to " + driverSystems.get(selectedDriverSystem).getClass().getSimpleName());
+    public static Drivetrain getInstance() {
+        if (singleton == null) {
+            singleton = new Drivetrain();
+        }
+        return singleton;
     }
 }

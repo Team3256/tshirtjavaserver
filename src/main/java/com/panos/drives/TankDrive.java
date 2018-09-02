@@ -9,11 +9,7 @@ public class TankDrive implements DriverSystem {
     private float previousRight = -1;
 
     public TankDrive() {
-
-    }
-
-    public TankDrive(Drivetrain drivetrain) {
-        this.drivetrain = drivetrain;
+        drivetrain = Drivetrain.getInstance();
     }
 
     public void setPreviousLeft(float previousLeft) {
@@ -47,10 +43,5 @@ public class TankDrive implements DriverSystem {
             previousRight = right;
             drivetrain.setMotorPower(left, right);
         }
-    }
-
-    @Override
-    public void setDrivetrain(Drivetrain drivetrain) {
-        this.drivetrain = drivetrain;
     }
 }

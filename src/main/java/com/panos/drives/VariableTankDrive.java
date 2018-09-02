@@ -3,10 +3,6 @@ package com.panos.drives;
 import com.panos.subsystems.Drivetrain;
 
 public class VariableTankDrive extends TankDrive {
-    public VariableTankDrive(Drivetrain drivetrain) {
-        super(drivetrain);
-    }
-
     @Override
     public void onAxisChange(float lx, float ly, float rx, float ry) {
         // Make sure values don't exceed 0.5 so they don't overpower the motor

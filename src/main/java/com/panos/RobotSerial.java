@@ -7,6 +7,7 @@ import com.panos.utils.Utils;
 import java.io.*;
 
 public class RobotSerial {
+    private static RobotSerial singleton = null;
     public OutputStream port;
 
     public enum State {
@@ -15,8 +16,6 @@ public class RobotSerial {
         READING_PAYLOAD,
         EXECUTE
     }
-
-    Shooter shooter;
 
     // Connect to the serial port on the Arduino
     public RobotSerial() {
@@ -67,7 +66,7 @@ public class RobotSerial {
 //                                switch (command) {
 //                                    case "updatePivotPos":
 //                                        Log.arduino("Pivot Position Update Received");
-//                                        shooter.setPivotPosition(Integer.valueOf(payload));
+//                                        Shooter.getInstance().setPivotPosition(Integer.valueOf(payload));
 //                                        break;
 //                                }
 //                                Log.arduino("Command Complete");
@@ -94,5 +93,12 @@ public class RobotSerial {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    public static RobotSerial getInstance() {
+        if (singleton == null) {
+            singleton = new RobotSerial();
+        }
+        return singleton;
     }
 }
