@@ -1,5 +1,6 @@
 package com.panos;
 import com.google.gson.Gson;
+import com.panos.utils.Location;
 import com.panos.utils.Log;
 import com.panos.utils.ShooterMath;
 import org.java_websocket.WebSocket;
@@ -11,6 +12,11 @@ import java.util.Timer;
 public class Main {
     public static void main(String[] args) {
         Log.log("MAIN", "Starting program");
+
+        Location location = new Location(37.068362, -121.551386);
+        Location locationTwo = new Location(37.068330, -121.551510);
+
+        Log.log("MATH", String.valueOf(ShooterMath.CalculateVelocity(location.distanceTo(locationTwo), 20)));
 
         // Create new robot instance that handles low level communication
         Robot robot = new Robot();

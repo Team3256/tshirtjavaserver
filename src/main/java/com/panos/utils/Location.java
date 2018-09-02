@@ -27,7 +27,7 @@ public class Location {
         // Each degree on a great circle of Earth is 60 nautical miles
         double nauticalMiles = 60 * Math.toDegrees(angle);
         double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
-        return statuteMiles * 5280;
+        return (statuteMiles * STATUTE_MILES_PER_NAUTICAL_MILE) * 5280;
     }
 
     // Return string representation of this point
