@@ -49,17 +49,20 @@ public class Robot extends TimerTask implements ControllerListener {
         switch (button) {
             case A:
                 if (isPressed)
-                    shooter.moveToAngle(30);
+                    Log.log("CONTROLLER", "A Pressed");
                 break;
             case B:
                 if (isPressed)
-                    shooter.moveToAngle(35);
+                    Log.log("CONTROLLER", "B Pressed");
                 break;
             case X:
                 if (isPressed)
-                    shooter.moveToAngle(40);
+                    Log.log("CONTROLLER", "X Pressed");
                 break;
             case Y:
+                if (isPressed) {
+                    Log.log("CONTROLLER", "Y Pressed");
+                }
                 break;
             case DPadUp:
                 if (isPressed) {

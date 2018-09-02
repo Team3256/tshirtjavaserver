@@ -71,6 +71,7 @@ public class Main {
             @Override
             public void onStart() {
                 Log.server("Server started successfully");
+                robot.getShooter().moveToAngle(45);
                 Timer timer = new Timer();
                 timer.schedule(robot, 0, 5);
             }

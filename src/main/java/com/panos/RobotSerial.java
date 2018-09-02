@@ -86,7 +86,7 @@ public class RobotSerial {
     }
 
     public void sendCommand(String s) {
-        Log.serial("Sending: " + s);
+        //Log.serial("Sending: " + s);
 //        try {
 //            //port.write(s.getBytes());
 //            //port.flush();

@@ -34,15 +34,6 @@ public class Drivetrain implements Subsystem {
         }
     }
 
-    public void setRightMotorPower(double right) {
-        serial.sendCommand(">motorright," + right + ";");
-    }
-
-    public void setLeftMotorPower(double left) {
-        left = left * -1;
-        serial.sendCommand(">motorleft," + left + ";");
-    }
-
     public void drive(double lx, double ly, double rx, double ry) {
         ArcadeDrive.onAxisChange(lx, ly, rx, ry);
     }
@@ -50,7 +41,7 @@ public class Drivetrain implements Subsystem {
     @Override
     public void emergencyStop() {
         Log.robot("Setting motor power to 0");
-        setMotorPower(0, 0);
+        setMotorPower(0.0, 0.0);
     }
 
     public static Drivetrain getInstance() {
