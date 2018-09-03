@@ -1,5 +1,6 @@
 package com.panos;
 
+import com.panos.constants.ButtonType;
 import com.panos.interfaces.ControllerListener;
 import com.panos.subsystems.Drivetrain;
 import com.panos.subsystems.RobotLocation;
@@ -81,6 +82,10 @@ public class Robot extends TimerTask implements ControllerListener {
             case Select:
                 if (isPressed)
                     shooter.setState(Shooter.State.PIVOTING_HOME);
+                break;
+            case Start:
+                if (isPressed)
+                    Log.log("CONTROLLER", "Start Pressed");
                 break;
             case ClickLeft:
                 if (isPressed) {
