@@ -6,14 +6,19 @@ public class RobotLocation {
     private static RobotLocation singleton = null;
 
     private Location currentLocation;
-    private int gyroAngle;
+    private float gyroAngle;
+    private float gyroOffset;
 
-    public int getGyroAngle() {
-        return gyroAngle;
+    public float getGyroAngle() {
+        return gyroAngle + gyroOffset;
     }
 
-    public void setGyroAngle(int angle) {
+    public void setGyroAngle(float angle) {
         gyroAngle = angle;
+    }
+
+    public void setGyroOffset(float offset) {
+        gyroOffset = offset;
     }
 
     public Location getCurrentLocation() {

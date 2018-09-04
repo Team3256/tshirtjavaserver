@@ -30,6 +30,14 @@ public class Location {
         return (statuteMiles * STATUTE_MILES_PER_NAUTICAL_MILE) * 5280;
     }
 
+    public void setLongitude(double lng) {
+        longitude = lng;
+    }
+
+    public void setLatitude(double lat) {
+        latitude = lat;
+    }
+
     public float getAngle(Location that) {
         float angle = (float) Math.toDegrees(Math.atan2(that.latitude - this.latitude, that.longitude - this.longitude));
 
