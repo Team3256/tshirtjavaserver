@@ -1,5 +1,7 @@
 #include <Servo.h>
 #include <Encoder.h>
+#include <SoftwareSerial.h>
+#include <TinyGPS.h>
 
 //define relay pins
 #define LEFT_POP_FORWARD 28
@@ -40,6 +42,9 @@
 #define PRESET_HIGH -60000
 #define PRESET_TOLERANCE 3000
 
+#define GPS_RX 2
+#define GPS_TX 4
+
 // Define Motors
 Servo left_front;
 Servo left_back;
@@ -49,6 +54,52 @@ Servo pivot;
 
 // Define Sensors (Hall Effect is defined in Setup)
 Encoder pivotEnc(ENCODER_A, ENCODER_B);
+TinyGPS gps;
+SoftwareSerial ss(GPS_TX, GPS_RX);
+
+void get_gps_data() {
+  bool newData = false;
+  unsigned long chars;
+  unsigned short sentences, failed;
+
+  // For one second we parse GPS data and report some key values
+  for (unsigned long start = millis(); millis() - start < 1000;)
+  {
+    while (ss.available())
+    {
+      char c = ss.read();
+      //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+      if (gps.encode(c)) // Did a new valid sentence come in?
+        newData = true;
+    }
+  }
+
+  if (newData)
+  {
+    float flat, flon;
+    unsigned long age;
+    gps.f_get_position(&flat, &flon, &age);
+    Serial.print(">lat:");
+    Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+    Serial.print(";");
+    Serial.print(">lon:");
+    Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+    Serial.print(";");
+    Serial.print(">sat:");
+    Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+    Serial.print(";");
+  }
+
+//  gps.stats(&chars, &sentences, &failed);
+//  Serial.print(" CHARS=");
+//  Serial.print(chars);
+//  Serial.print(" SENTENCES=");
+//  Serial.print(sentences);
+//  Serial.print(" CSUM ERR=");
+//  Serial.println(failed);
+  if (chars == 0)
+    Serial.println(">msg:No characters received from GPS: check wiring **;");
+}
 
 void pop_left() {
   digitalWrite(LEFT_POP_FORWARD, HIGH);
@@ -221,9 +272,13 @@ void run_command() {
   if (command == "shootr") {
     shoot_right(data.toFloat());
   }
+
+  if (command == "updateGPS") {
+    get_gps_data();
+  }
 }
 
-typedef enum CommandState {
+enum CommandState {
   COMMAND_IDLE,
   COMMAND,
   DATA,
@@ -234,7 +289,8 @@ CommandState commandState = COMMAND_IDLE;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(500000, SERIAL_8N2);
+  Serial.begin(1000000, SERIAL_8N2);
+  ss.begin(9600);
   Serial.println(">msg:SERIAL INITIALIZED;");
   Serial.setTimeout(30);
   Serial.println(">msg:STARTING MAIN LOOP;");
@@ -265,6 +321,7 @@ void setup() {
   digitalWrite(LEFT_SHOOT, HIGH);
   digitalWrite(RIGHT_SHOOT, HIGH);
   pivot_home();
+  get_gps_data();
 }
 
 void loop() {
@@ -305,7 +362,7 @@ void loop() {
           commandState = COMMAND_IDLE;
           break;
       }
-      Serial.println(">updatePivotPos:" + pivotPos + ";");
+      Serial.println(">updatePivotPos:" + String(pivotPos) + ";");
       if (ticksToDegrees(pivotPos) > 45) {
         run_motor(pivot, 0.0);
       }
