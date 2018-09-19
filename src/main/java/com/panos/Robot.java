@@ -1,6 +1,5 @@
 package com.panos;
 
-import com.panos.constants.ButtonType;
 import com.panos.interfaces.ControllerListener;
 import com.panos.subsystems.Drivetrain;
 import com.panos.subsystems.RobotLocation;
@@ -8,7 +7,6 @@ import com.panos.subsystems.SafetyLight;
 import com.panos.subsystems.Shooter;
 import com.panos.utils.Location;
 import com.panos.utils.Log;
-import com.panos.utils.Utils;
 
 import java.util.TimerTask;
 

@@ -25,8 +25,6 @@ public class ArcadeDrive {
         right = clamp(right);
 
         drivetrain.setMotorPower(left, right);
-
-        Utils.delay(5);
     }
 
     public static double clamp(double val){

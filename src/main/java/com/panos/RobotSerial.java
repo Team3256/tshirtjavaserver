@@ -1,14 +1,12 @@
 package com.panos;
 
-import com.panos.subsystems.Shooter;
+import com.fazecast.jSerialComm.SerialPort;
 import com.panos.utils.Log;
-import com.panos.utils.Utils;
-
-import java.io.*;
+import java.util.Arrays;
 
 public class RobotSerial {
     private static RobotSerial singleton = null;
-    public OutputStream port;
+    public SerialPort port;
 
     public enum State {
         IDLE,
@@ -16,96 +14,91 @@ public class RobotSerial {
         READING_PAYLOAD,
         EXECUTE
     }
+    State state = State.IDLE;
+
+    private String command = "";
+    private String payload = "";
 
     // Connect to the serial port on the Arduino
     public RobotSerial() {
-        // Get sysfs serial port
-        File initialFile = new File("/dev/ttyACM0");
-        try {
-            // Get an input stream so we can get what the Arduino prints out
-            // Make a new output stream so we can send to the Arduino
-            port = new FileOutputStream(initialFile);
-            BufferedReader br = new BufferedReader(new FileReader(initialFile));
-//            Thread thread = new Thread(() -> {
-//                State state = State.IDLE;
-//                String command = "";
-//                String payload = "";
-//                while (true) {
-//                    try {
-//                        int charInt;
-//                        if ((charInt = br.read()) != -1) {
-//                            char newChar = (char) charInt;
-//
-//                            if (newChar == '>') {
-//                                Log.arduino("New command from Arduino");
-//                                state = State.READING_COMMAND;
-//                                continue;
-//                            }
-//
-//                            if (newChar == ':') {
-//                                state = State.READING_PAYLOAD;
-//                                continue;
-//                            }
-//
-//                            if (newChar == ';') {
-//                                state = State.EXECUTE;
-//                            }
-//
-//                            if (state.equals(State.READING_COMMAND)) {
-//                                command = command + newChar;
-//                            }
-//
-//                            if (state.equals(State.READING_PAYLOAD)) {
-//                                payload = payload + newChar;
-//                            }
-//
-//                            if (state.equals(State.EXECUTE)) {
-//                                Log.arduino("NEW COMMAND: " + command);
-//                                Log.arduino("PAYLOAD: " + payload);
-//
-//                                switch (command) {
-//                                    case "updatePivotPos":
-//                                        Log.arduino("Pivot Position Update Received");
-//                                        Robot.getInstance().getShooter().setPivotPosition(Integer.valueOf(payload));
-//                                        break;
-//                                    case "lat":
-//                                        Log.arduino("New GPS Latitude Received");
-//                                        Robot.getInstance().getRobotLocation().getCurrentLocation().setLatitude(Double.valueOf(payload));
-//                                        break;
-//                                    case "lon":
-//                                        Log.arduino("New GPS Longitude Received");
-//                                        Robot.getInstance().getRobotLocation().getCurrentLocation().setLatitude(Double.valueOf(payload));
-//                                        break;
-//                                    case "offset":
-//                                        Log.arduino("New Gyro Offset Received");
-//                                        Robot.getInstance().getRobotLocation().setGyroOffset(Float.valueOf(payload));
-//                                        break;
-//                                }
-//                                Log.arduino("Command Complete");
-//                                state = State.IDLE;
-//                                br.flush();
-//                            }
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            });
-//            thread.start();
-            Log.serial("SERIAL PORT OPENED");
-        } catch (IOException e) {
-            e.printStackTrace();
+        Log.serial("Opening serial port");
+        System.out.println(Arrays.toString(SerialPort.getCommPorts()));
+        port = SerialPort.getCommPort("/dev/ttyACM0");
+        port.openPort();
+        Thread thread = new Thread(() -> {
+            try {
+                while (true)
+                {
+                    while (port.bytesAvailable() == 0)
+                        Thread.sleep(20);
+
+                    byte[] readBuffer = new byte[port.bytesAvailable()];
+                    int numRead = port.readBytes(readBuffer, 1);
+                    System.out.println("Read " + numRead + " bytes.");
+                    char newChar = (char) readBuffer[0];
+
+                    switch(newChar) {
+                        case '>':
+                            Log.arduino("Reading command from Arduino");
+                            state = state.READING_COMMAND;
+                            continue;
+                        case ':':
+                            Log.arduino("Reading payload from Arduino");
+                            state = State.READING_PAYLOAD;
+                            continue;
+                        case ';':
+                            Log.arduino("Executing command and payload from Arduino");
+                            state = State.EXECUTE;
+                            break;
+                    }
+
+                    switch(state) {
+                        case READING_COMMAND:
+                            command = command + newChar;
+                            break;
+                        case READING_PAYLOAD:
+                            payload = payload + newChar;
+                            break;
+                        case EXECUTE:
+                            Log.arduino("NEW COMMAND: " + command);
+                            Log.arduino("PAYLOAD: " + payload);
+                            executeCommand();
+                            command = "";
+                            payload = "";
+                            state = State.IDLE;
+                            break;
+                    }
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+        });
+        thread.start();
+    }
+
+    private void executeCommand() {
+        switch (command) {
+            case "updatePivotPos":
+                Log.arduino("Pivot Position Update Received");
+                Robot.getInstance().getShooter().setPivotPosition(Integer.valueOf(payload));
+                break;
+            case "lat":
+                Log.arduino("New GPS Latitude Received");
+                Robot.getInstance().getRobotLocation().getCurrentLocation().setLatitude(Double.valueOf(payload));
+                break;
+            case "lon":
+                Log.arduino("New GPS Longitude Received");
+                Robot.getInstance().getRobotLocation().getCurrentLocation().setLatitude(Double.valueOf(payload));
+                break;
+            case "offset":
+                Log.arduino("New Gyro Offset Received");
+                Robot.getInstance().getRobotLocation().setGyroOffset(Float.valueOf(payload));
+                break;
         }
+        Log.arduino("Command executed");
     }
 
     public void sendCommand(String s) {
-        //Log.serial("Sending: " + s);
-        try {
-            port.write(s.getBytes());
-            port.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Log.serial("Sending: " + s);
+        port.writeBytes(s.getBytes(), s.getBytes().length);
     }
 
     public static RobotSerial getInstance() {
