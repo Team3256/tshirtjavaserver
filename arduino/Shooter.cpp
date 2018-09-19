@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include <Servo.h>
 #include <Encoder.h>
 
@@ -116,6 +117,16 @@ void run_motor(Servo motor, double power) {
   motor.writeMicroseconds(pulse_us);
 }
 
+void left_motor(float power) {
+  run_motor(left_front, power);
+  run_motor(left_back, power);
+}
+
+void right_motor(float power) {
+  run_motor(right_front, power);
+  run_motor(right_back, power);
+}
+
 float update_pivot(float angle, double power) {
   power = abs(power);
   float currPos = pivotEnc.read();
@@ -159,91 +170,7 @@ float ticksToDegrees(float ticks) {
   return ticks/ticksPerDegree;
 }
 
-String command = "";
-String data = "";
-
-void run_command() {
-  Serial.println(command);
-  Serial.println(data);
-  if (command == "motorleft") {
-    run_motor(left_front, data.toFloat());
-    run_motor(left_back, data.toFloat());
-  }
-
-  if (command == "motorright") {
-    run_motor(right_front, data.toFloat());
-    run_motor(right_back, data.toFloat());
-  }
-
-  if (command == "pivot") {
-    run_motor(pivot, data.toFloat());
-  }
-
-  if (command == "pivothome") {
-    pivot_home();
-  }
-
-  if (command == "pivotangle") {
-    update_pivot(data.toInt(), -0.2);
-  }
-
-  if (command == "popl") {
-    pop_left();
-  }
-
-  if (command == "popr") {
-    pop_right();
-  }
-
-  if (command == "ejectl") {
-    eject_left();
-  }
-
-  if (command == "ejectr") {
-    eject_right();
-  }
-
-  if (command == "pushl") {
-    push_left();
-  }
-
-  if (command == "pushr") {
-    push_right();
-  }
-
-  if (command == "retractl") {
-    retract_left();
-  }
-
-  if (command == "retractr") {
-    retract_right();
-  }
-
-  if (command == "shootl") {
-    shoot_left(data.toFloat());
-  }
-
-  if (command == "shootr") {
-    shoot_right(data.toFloat());
-  }
-}
-
-typedef enum CommandState {
-  COMMAND_IDLE,
-  COMMAND,
-  DATA,
-  EXECUTE
-};
-
-CommandState commandState = COMMAND_IDLE;
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(500000, SERIAL_8N2);
-  Serial.println("SERIAL INITIALIZED");
-  Serial.setTimeout(30);
-  Serial.println("STARTING MAIN LOOP");
-  commandState = COMMAND_IDLE;
+void initShooter() {
   left_front.attach(LEFT_FRONT_PIN);
   left_back.attach(LEFT_BACK_PIN);
   right_front.attach(RIGHT_FRONT_PIN);
@@ -252,7 +179,7 @@ void setup() {
 
   pinMode(HALL_EFFECT, INPUT);
 
-  //Define 6 solenoids (the 4 solenoids on the manifold are dual-channeled)
+  // Define 6 solenoids (the 4 solenoids on the manifold are dual-channeled)
   pinMode(LEFT_POP_FORWARD, OUTPUT);
   pinMode(LEFT_POP_REVERSE, OUTPUT);
   pinMode(RIGHT_POP_FORWARD, OUTPUT);
@@ -266,55 +193,8 @@ void setup() {
   pinMode(LEFT_SHOOT, OUTPUT);
   pinMode(RIGHT_SHOOT, OUTPUT);
 
-  //close electronic solenoids when initializing
+  // close electronic solenoids when initializing
   digitalWrite(LEFT_SHOOT, HIGH);
   digitalWrite(RIGHT_SHOOT, HIGH);
-  pivot_home();
-  //update_pivot(45, 0.2);
-}
-
-void loop() {
-  while (true) {
-    pivotPos = pivotEnc.read();
-    if (Serial.available() > 0) {
-      char incomingByte = Serial.read();
-
-      switch(incomingByte) {
-        case '>':
-          commandState = COMMAND;
-          command = "";
-          data = "";
-          continue;
-          break;
-        case ',':
-          if (commandState = COMMAND) {
-             commandState = DATA;
-            continue;
-          }
-          break;
-        case ';':
-          commandState = EXECUTE;
-          break;
-      }
-
-      switch(commandState) {
-        case COMMAND:
-          command = command + incomingByte;
-          break;
-        case DATA:
-          data = data + incomingByte;
-          break;
-        case EXECUTE:
-          run_command();
-          command = "";
-          data = "";
-          commandState = COMMAND_IDLE;
-          break;
-      }
-      
-//      if (ticksToDegrees(pivotPos) > 45) {
-//        run_motor(pivot, 0.0);
-//      }
-    }
-  }
+  Serial.println("Shooter Init");
 }
