@@ -24,6 +24,8 @@ public class RobotSerial {
         Log.serial("Opening serial port");
         System.out.println(Arrays.toString(SerialPort.getCommPorts()));
         port = SerialPort.getCommPort("/dev/ttyACM0");
+        port.setBaudRate(1000000);
+        port.setNumStopBits(2);
         port.openPort();
         Thread thread = new Thread(() -> {
             try {
@@ -36,6 +38,8 @@ public class RobotSerial {
                     int numRead = port.readBytes(readBuffer, 1);
                     System.out.println("Read " + numRead + " bytes.");
                     char newChar = (char) readBuffer[0];
+
+                    Log.arduino(String.valueOf(newChar));
 
                     switch(newChar) {
                         case '>':

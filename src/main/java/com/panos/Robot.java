@@ -61,20 +61,23 @@ public class Robot extends TimerTask implements ControllerListener {
             case Y:
                 if (isPressed) {
                     Log.log("CONTROLLER", "Y Pressed");
+                    shooter.moveToAngle(45);
                 }
                 break;
             case DPadUp:
                 if (isPressed) {
-                    shooter.setPivotSpeed(-0.5);
+                    //shooter.setPivotSpeed(-0.5);
+                    shooter.setShootingVelocity(shooter.getShootingVelocity() + 10);
                 } else {
-                    shooter.setPivotSpeed(0);
+                    //shooter.setPivotSpeed(0);
                 }
                 break;
             case DPadDown:
                 if (isPressed) {
-                    shooter.setPivotSpeed(0.5);
+                    //shooter.setPivotSpeed(0.5);
+                    shooter.setShootingVelocity(shooter.getShootingVelocity() - 10);
                 } else {
-                    shooter.setPivotSpeed(0);
+                   //shooter.setPivotSpeed(0);
                 }
                 break;
             case Select:

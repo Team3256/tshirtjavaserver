@@ -14,6 +14,7 @@ public class Shooter implements Subsystem {
     private RobotSerial serial;
 
     private int pivotPosition = 0;
+    private int shootingVelocity = 40;
 
     public Location targetLocation;
 
@@ -45,7 +46,7 @@ public class Shooter implements Subsystem {
             @Override
             State run(Robot robot) {
                 Log.state("Shooting Left");
-                robot.getShooter().shootLeft(40);
+                robot.getShooter().shootLeft(robot.getShooter().getShootingVelocity());
                 return IDLE;
             }
         },
@@ -53,7 +54,7 @@ public class Shooter implements Subsystem {
             @Override
             State run(Robot robot) {
                 Log.state("Shooting Right");
-                robot.getShooter().shootRight(40);
+                robot.getShooter().shootRight(robot.getShooter().getShootingVelocity());
                 return IDLE;
             }
         },
@@ -79,11 +80,11 @@ public class Shooter implements Subsystem {
                 Log.state("Pivoting Home");
                 Shooter.getInstance().pivotHome();
                 int pivotPos = -1;
-                while (pivotPos != 0) {
-                    Log.arduino("WAITING: " + pivotPos);
-                    Utils.delay(1000);
-                    pivotPos = Shooter.getInstance().pivotPosition;
-                }
+//                while (pivotPos != 0) {
+//                    Log.arduino("WAITING: " + pivotPos);
+//                    Utils.delay(1000);
+//                    pivotPos = Shooter.getInstance().pivotPosition;
+//                }
                 Log.robot("Pivot Homed");
                 return IDLE;
             }
@@ -119,58 +120,58 @@ public class Shooter implements Subsystem {
     }
 
     public void setPivotSpeed(double speed) {
-        serial.sendCommand(">pivot," + speed + ";");
+        serial.sendCommand("pivot," + speed + ";");
     }
 
     public void moveToAngle(int angle) {
         Log.robot("Pivoting to " + angle + " degrees");
-        serial.sendCommand(">pivotangle," + angle + ";");
+        serial.sendCommand("updatePivotAngle," + angle + ";");
     }
 
     public void pivotHome() {
         Log.robot("Pivoting to home");
-        serial.sendCommand(">pivothome;");
+        serial.sendCommand("pivotHome;");
     }
 
     public void popLeft() {
         Log.robot("Opening left barrel");
-        serial.sendCommand(">popl;");
+        serial.sendCommand("popLeft;");
     }
 
     public void popRight() {
         Log.robot("Opening right barrel");
-        serial.sendCommand(">popr;");
+        serial.sendCommand("popRight;");
     }
 
     public void ejectLeft() {
         Log.robot("Ejecting left cartridge");
-        serial.sendCommand(">ejectl;");
+        serial.sendCommand("ejectLeft;");
     }
 
     public void ejectRight() {
         Log.robot("Ejecting right cartridge");
-        serial.sendCommand(">ejectr;");
+        serial.sendCommand("ejectRight;");
     }
 
 
     public void retractLeft() {
         Log.robot("Retracting left actuator");
-        serial.sendCommand(">retractl;");
+        serial.sendCommand("retractLeft;");
     }
 
     public void retractRight() {
         Log.robot("Retracting right actuator");
-        serial.sendCommand(">retractr;");
+        serial.sendCommand("retractRight;");
     }
 
     public void pushLeft() {
         Log.robot("Retracting left barrel");
-        serial.sendCommand(">pushl;");
+        serial.sendCommand("pushLeft;");
     }
 
     public void pushRight() {
         Log.robot("Retracting right barrel");
-        serial.sendCommand(">pushr;");
+        serial.sendCommand("pushRight;");
     }
 
     public void reloadLeft() {
@@ -197,12 +198,25 @@ public class Shooter implements Subsystem {
 
     public void shootLeft(int power) {
         Log.robot("Shooting left barrel with power level " + power);
-        serial.sendCommand(">shootl," + power + ";");
+        serial.sendCommand("shootLeft," + power + ";");
     }
 
     public void shootRight(int power) {
         Log.robot("Shooting right barrel with power level " + power);
-        serial.sendCommand(">shootr," + power + ";");
+        serial.sendCommand("shootRight," + power + ";");
+    }
+
+    public void setShootingVelocity(int vel) {
+        if (vel < 0 || vel > 150) {
+            Log.robot("Cannot change velocity to " + vel + "ms");
+        } else {
+            Log.robot("Changing robot velocity to " + vel + "ms");
+            shootingVelocity = vel;
+        }
+    }
+
+    public int getShootingVelocity() {
+        return shootingVelocity;
     }
 
     @Override

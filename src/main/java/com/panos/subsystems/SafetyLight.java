@@ -11,7 +11,7 @@ public class SafetyLight implements Subsystem {
     private volatile boolean isOn = true;
 
     public SafetyLight() {
-//        Thread thread = new Thread(() -> {
+//        Thread thread = new Thread(() - {
 //            while(true) {
 //                if (this.isBlinking) {
 //                    if (this.isOn) {
@@ -28,13 +28,13 @@ public class SafetyLight implements Subsystem {
     }
 
     public void on() {
-        serial.sendCommand(">lighton;");
+        serial.sendCommand("lighton;");
         Log.robot("Turning safety light on");
         this.isOn = true;
     }
 
     public void off() {
-        serial.sendCommand(">lightoff;");
+        serial.sendCommand("lightoff;");
         Log.robot("Turning safety light off");
         this.isOn = false;
     }

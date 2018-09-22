@@ -4,6 +4,7 @@ import com.panos.drives.ArcadeDrive;
 import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
+import com.panos.utils.Utils;
 
 // This class has methods to control driving,
 // and communicating that data to the Arduino
@@ -27,11 +28,13 @@ public class Drivetrain implements Subsystem {
         String rightCommand = String.format("%.3f", right);
 
         if (!previousLeft.equals(leftCommand) || !previousRight.equals(rightCommand)) {
-            serial.sendCommand(">motorleft," + leftCommand + ";");
-            serial.sendCommand(">motorright," + rightCommand + ";");
+            serial.sendCommand("leftMotorSpeed," + leftCommand + ";");
+            serial.sendCommand("rightMotorSpeed," + rightCommand + ";");
             previousLeft = leftCommand;
             previousRight = rightCommand;
         }
+
+        Utils.delay(5);
     }
 
     public void drive(double lx, double ly, double rx, double ry) {
