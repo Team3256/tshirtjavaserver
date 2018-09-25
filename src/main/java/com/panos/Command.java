@@ -43,4 +43,9 @@ public class Command {
         startMs = startTime;
         endMs = endTime;
     }
+
+    public Command(String msg) {
+        command = "log";
+        message = msg;
+    }
 }

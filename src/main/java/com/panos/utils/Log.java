@@ -2,13 +2,14 @@ package com.panos.utils;
 
 import com.google.gson.Gson;
 import com.panos.Command;
+import com.panos.Websocket;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
 
 // Just some log functions that make it easier to debug code
 public class Log {
-    private static Gson gson = new Gson();
+    private static Websocket websocket = null;
 
     public static void server(String msg) {
         printAndSend("[SERVER] " + msg);
@@ -34,13 +35,12 @@ public class Log {
 
     public static void printAndSend(String msg) {
         System.out.println(msg);
+        if (websocket != null)
+            websocket.sendCommand(new Command(msg));
     }
 
-    public static void addSocket(WebSocket socket) {
-        //sockets.add(socket);
+    public static void configureWebsocket(Websocket websocket) {
+        Log.websocket = websocket;
     }
 
-    public static void removeSocket(WebSocket socket) {
-        //sockets.remove(socket);
-    }
 }
