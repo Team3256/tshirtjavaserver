@@ -4,10 +4,12 @@ import com.panos.subsystems.RobotLocation;
 import com.panos.utils.Location;
 import com.panos.utils.Log;
 import com.panos.utils.ShooterMath;
+import com.panos.utils.Utils;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import java.util.ArrayList;
 import java.util.Timer;
 
 public class Main {
@@ -20,12 +22,14 @@ public class Main {
         // Create GSON instance to decode JSON from client
         Gson gson = new Gson();
 
+        ArrayList<WebSocket> sockets = new ArrayList<>();
+
         // Create new websocket in order to listen for controller events
         WebSocketServer server = new WebSocketServer() {
             // Add listeners to messages from the websocket server
             @Override
             public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
-                Log.addSocket(webSocket);
+                sockets.add(webSocket);
                 Log.server("Client " + webSocket.getRemoteSocketAddress().getAddress().toString() + " connected");
                 robot.onConnect();
             }
@@ -33,9 +37,8 @@ public class Main {
             // When a client disconnects, disable the robot
             @Override
             public void onClose(WebSocket webSocket, int i, String s, boolean b) {
-                Log.removeSocket(webSocket);
+                sockets.remove(webSocket);
                 Log.server(webSocket.getRemoteSocketAddress().getAddress().toString() + " DISCONNECTED");
-                robot.emergencyStop();
             }
 
             // When the server gets controller input, parse the input and act upon it
@@ -55,8 +58,8 @@ public class Main {
                     robot.onAxisChange(command.lx, command.ly, command.rx, command.ry);
                 }
 
-                if (command.version == 2) {
-                    Log.robot(String.valueOf(command.pivotAcceleration));
+                if (command.command.equals("ping")) {
+                    this.sendCommand(new Command(command.startMs, System.currentTimeMillis()));
                 }
             }
 
@@ -71,9 +74,16 @@ public class Main {
             @Override
             public void onStart() {
                 Log.server("Server started successfully");
-                robot.getShooter().moveToAngle(45);
+                Log.arduino("Waiting 120 seconds for Arduino to finish starting up");
+                //Utils.delay(120 * 1000);
                 Timer timer = new Timer();
                 timer.schedule(robot, 0, 5);
+            }
+
+            public void sendCommand(Command command) {
+                for (int i = 0; i < sockets.size(); i++) {
+                    sockets.get(i).send(gson.toJson(command));
+                }
             }
         };
 

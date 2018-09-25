@@ -1,33 +1,25 @@
 package com.panos;
 
 public class Command {
-    public String command = "";
+    public String command;
 
     // Controller Values
-    public double lx = 0;
-    public double ly = 0;
-    public double rx = 0;
-    public double ry = 0;
+    public double lx;
+    public double ly;
+    public double rx;
+    public double ry;
 
     // Button values
-    public int button = -1;
-    public boolean isPressed = false;
+    public int button;
+    public boolean isPressed;
 
-    public String message = "";
+    // Log message
+    public String message;
 
-    public int version = -1;
-    public double pivotAcceleration = 0;
+    public long startMs;
+    public long endMs;
 
-    public Command() {
-
-    }
-
-    public Command(String msg) {
-        command = "msg";
-        message = msg;
-    }
-
-    public Command(double lx, double ly, double rx, double ry) {
+    public Command(float lx, float ly, float rx, float ry) {
         command = "axis";
         this.lx = lx;
         this.ly = ly;
@@ -39,5 +31,16 @@ public class Command {
         command = "button";
         this.button = button;
         this.isPressed = isPressed;
+    }
+
+    public Command(long startTime) {
+        command = "ping";
+        startMs = startTime;
+    }
+
+    public Command(long startTime, long endTime) {
+        command = "finishPing";
+        startMs = startTime;
+        endMs = endTime;
     }
 }
