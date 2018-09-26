@@ -1,11 +1,6 @@
 package com.panos.utils;
 
-import com.google.gson.Gson;
 import com.panos.Command;
-import com.panos.Websocket;
-import org.java_websocket.WebSocket;
-
-import java.util.ArrayList;
 
 // Just some log functions that make it easier to debug code
 public class Log {

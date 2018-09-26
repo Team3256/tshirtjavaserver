@@ -8,6 +8,7 @@ import com.panos.subsystems.Shooter;
 import com.panos.utils.Location;
 import com.panos.utils.Log;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.panos.constants.ButtonType.*;
@@ -32,6 +33,11 @@ public class Robot extends TimerTask implements ControllerListener {
 
         Location location = new Location(37.068433, -121.551317);
         robotLocation.setCurrentLocation(location);
+
+        Log.arduino("Waiting 120 seconds for Arduino to finish starting up");
+        //Utils.delay(120 * 1000);
+        Timer timer = new Timer();
+        timer.schedule(this, 0, 5);
     }
 
     public void run() {
