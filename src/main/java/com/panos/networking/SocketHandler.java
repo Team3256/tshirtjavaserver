@@ -1,4 +1,4 @@
-package com.panos.utils;
+package com.panos.networking;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
@@ -10,6 +10,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import com.panos.Robot;
+import com.panos.utils.Log;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -48,6 +49,18 @@ public class SocketHandler extends SimpleChannelInboundHandler<Object> {
         ctx.flush();
     }
 
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        Log.addSocketHandler(ctx);
+        Robot.getInstance().onConnect();
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        Robot.getInstance().emergencyStop();
+        Log.removeSocketHandle(ctx);
+    }
+
     private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         /// Handle a bad request.
         if (!req.getDecoderResult().isSuccess()) {
@@ -68,7 +81,6 @@ public class SocketHandler extends SimpleChannelInboundHandler<Object> {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
             handshaker.handshake(ctx.channel(), req);
-            Robot.getInstance().onConnect();
         }
     }
 
@@ -112,7 +124,7 @@ public class SocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
-        Robot.getInstance().emergencyStop();
         ctx.close();
     }
+
 }

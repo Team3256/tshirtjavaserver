@@ -21,7 +21,7 @@ public class RobotSerial {
 
     // Connect to the serial port on the Arduino
     public RobotSerial() {
-        Log.serial("Opening serial port");
+//        Log.serial("Opening serial port");
 //        System.out.println(Arrays.toString(SerialPort.getCommPorts()));
 //        port = SerialPort.getCommPort("/dev/ttyACM0");
 //        port.setBaudRate(1000000);
@@ -38,8 +38,6 @@ public class RobotSerial {
 //                    int numRead = port.readBytes(readBuffer, 1);
 //                    System.out.println("Read " + numRead + " bytes.");
 //                    char newChar = (char) readBuffer[0];
-//
-//                    Log.arduino(String.valueOf(newChar));
 //
 //                    switch(newChar) {
 //                        case '>':
@@ -80,6 +78,9 @@ public class RobotSerial {
 
     private void executeCommand() {
         switch (command) {
+            case "log":
+                Log.arduino(payload);
+                break;
             case "updatePivotPos":
                 Log.arduino("Pivot Position Update Received");
                 Robot.getInstance().getShooter().setPivotPosition(Integer.valueOf(payload));

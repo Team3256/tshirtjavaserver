@@ -153,7 +153,6 @@ public class Shooter implements Subsystem {
         serial.sendCommand("ejectRight;");
     }
 
-
     public void retractLeft() {
         Log.robot("Retracting left actuator");
         serial.sendCommand("retractLeft;");
@@ -207,7 +206,7 @@ public class Shooter implements Subsystem {
     }
 
     public void setShootingVelocity(int vel) {
-        if (vel < 0 || vel > 150) {
+        if (vel < 0 || vel > 500) {
             Log.robot("Cannot change velocity to " + vel + "ms");
         } else {
             Log.robot("Changing robot velocity to " + vel + "ms");

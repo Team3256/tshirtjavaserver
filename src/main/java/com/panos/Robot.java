@@ -7,7 +7,9 @@ import com.panos.subsystems.SafetyLight;
 import com.panos.subsystems.Shooter;
 import com.panos.utils.Location;
 import com.panos.utils.Log;
+import com.panos.utils.Utils;
 
+import javax.rmi.CORBA.Util;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,6 +40,7 @@ public class Robot extends TimerTask implements ControllerListener {
         //Utils.delay(120 * 1000);
         Timer timer = new Timer();
         timer.schedule(this, 0, 5);
+        Log.server("Arduino booted");
     }
 
     public void run() {
@@ -72,18 +75,18 @@ public class Robot extends TimerTask implements ControllerListener {
                 break;
             case DPadUp:
                 if (isPressed) {
-                    //shooter.setPivotSpeed(-0.5);
-                    shooter.setShootingVelocity(shooter.getShootingVelocity() + 10);
+                    shooter.setPivotSpeed(-0.5);
+                    //shooter.setShootingVelocity(shooter.getShootingVelocity() + 10);
                 } else {
-                    //shooter.setPivotSpeed(0);
+                    shooter.setPivotSpeed(0);
                 }
                 break;
             case DPadDown:
                 if (isPressed) {
-                    //shooter.setPivotSpeed(0.5);
-                    shooter.setShootingVelocity(shooter.getShootingVelocity() - 10);
+                    shooter.setPivotSpeed(0.5);
+                    //shooter.setShootingVelocity(shooter.getShootingVelocity() - 10);
                 } else {
-                   //shooter.setPivotSpeed(0);
+                    shooter.setPivotSpeed(0);
                 }
                 break;
             case Select:
@@ -135,12 +138,16 @@ public class Robot extends TimerTask implements ControllerListener {
     public void emergencyStop() {
         Log.robot("Stopping robot...");
         drivetrain.emergencyStop();
+        Utils.delay(10);
         shooter.emergencyStop();
+        Utils.delay(10);
+        safetyLight.emergencyStop();
         Log.robot("Robot successfully disabled");
     }
 
     public void onConnect() {
-        safetyLight.setIsBlinking(true);
+        Log.robot("Client Connected");
+        safetyLight.on();
     }
 
     public Shooter getShooter() {

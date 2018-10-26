@@ -1,6 +1,7 @@
 package com.panos.subsystems;
 
 import com.panos.drives.ArcadeDrive;
+import com.panos.drives.TankDrive;
 import com.panos.utils.Log;
 import com.panos.RobotSerial;
 import com.panos.interfaces.Subsystem;
@@ -23,22 +24,25 @@ public class Drivetrain implements Subsystem {
 
     // Send command to Arduino to handle PWM singles
     public void setMotorPower(double left, double right) {
-        left *= -1;
+        if (!(right == 0)) right *= -1;
         String leftCommand = String.format("%.3f", left);
         String rightCommand = String.format("%.3f", right);
 
-        if (!previousLeft.equals(leftCommand) || !previousRight.equals(rightCommand)) {
+        if (!previousLeft.equals(leftCommand)) {
             serial.sendCommand("leftMotorSpeed," + leftCommand + ";");
-            serial.sendCommand("rightMotorSpeed," + rightCommand + ";");
             previousLeft = leftCommand;
-            previousRight = rightCommand;
         }
 
-        Utils.delay(5);
+        Utils.delay(10);
+
+        if (!previousRight.equals(rightCommand)) {
+            serial.sendCommand("rightMotorSpeed," + rightCommand + ";");
+            previousRight = rightCommand;
+        }
     }
 
     public void drive(double lx, double ly, double rx, double ry) {
-        ArcadeDrive.onAxisChange(lx, ly, rx, ry);
+        TankDrive.onAxisChange(lx, ly, rx, ry);
     }
 
     @Override

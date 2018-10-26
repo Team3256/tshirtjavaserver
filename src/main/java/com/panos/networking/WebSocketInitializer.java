@@ -1,19 +1,11 @@
-package com.panos;
+package com.panos.networking;
 
-import com.panos.utils.CommandToTextFrameHandler;
-import com.panos.utils.SocketHandler;
-import com.panos.utils.TextFrameToCommandHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.util.CharsetUtil;
-import org.java_websocket.server.WebSocketServer;
 
 public class WebSocketInitializer extends ChannelInitializer<SocketChannel> {
     @Override

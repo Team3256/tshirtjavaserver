@@ -1,4 +1,4 @@
-package com.panos.utils;
+package com.panos.networking;
 
 import com.google.gson.Gson;
 import com.panos.Command;
@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 public class TextFrameToCommandHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
     private Gson gson = new Gson();
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
         Command command = gson.fromJson(frame.text(), Command.class);
@@ -17,7 +18,6 @@ public class TextFrameToCommandHandler extends SimpleChannelInboundHandler<TextW
             Robot.getInstance().onButtonPress(command.button, command.isPressed);
         }
 
-        // If joysticks change, send that to the robot
         if (command.command.equals("axis")) {
             Robot.getInstance().onAxisChange(command.lx, command.ly, command.rx, command.ry);
         }

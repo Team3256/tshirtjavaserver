@@ -1,10 +1,13 @@
 package com.panos.utils;
 
 import com.panos.Command;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.util.ArrayList;
 
 // Just some log functions that make it easier to debug code
 public class Log {
-    private static Websocket websocket = null;
+    public static ArrayList<ChannelHandlerContext> ctxList = new ArrayList<ChannelHandlerContext>();
 
     public static void server(String msg) {
         printAndSend("[SERVER] " + msg);
@@ -30,12 +33,22 @@ public class Log {
 
     public static void printAndSend(String msg) {
         System.out.println(msg);
-        if (websocket != null)
-            websocket.sendCommand(new Command(msg));
+        ctxList.forEach((ctx) -> {
+            Command command = new Command();
+
+            command.command = "log";
+            command.message = msg;
+
+            ctx.writeAndFlush(command);
+        });
     }
 
-    public static void configureWebsocket(Websocket websocket) {
-        Log.websocket = websocket;
+    public static void addSocketHandler(ChannelHandlerContext ctx) {
+        ctxList.add(ctx);
+    }
+
+    public static void removeSocketHandle(ChannelHandlerContext ctx) {
+        ctxList.remove(ctx);
     }
 
 }

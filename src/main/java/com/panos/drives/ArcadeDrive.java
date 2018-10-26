@@ -1,7 +1,6 @@
 package com.panos.drives;
 
 import com.panos.subsystems.Drivetrain;
-import com.panos.utils.Utils;
 
 public class ArcadeDrive {
     private static Drivetrain drivetrain = Drivetrain.getInstance();

@@ -48,4 +48,8 @@ public class Command {
         command = "log";
         message = msg;
     }
+
+    public Command() {
+
+    }
 }
